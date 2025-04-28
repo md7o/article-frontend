@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
 import InputField from "@/components/ui/custom/InputField";
-import { SignupFormData, signupSchema } from "@/lib/schemas/authSchema";
+import { SignupFormData, signupSchema } from "@/lib/authSchema";
 import GlassCard from "@/components/ui/custom/GlassCard";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext } from "react";
@@ -64,7 +64,7 @@ export default function SignupCard() {
           <p className="text-center text-white/60 text-sm mt-6">
             Already have an account?{" "}
             <Link
-              href="/auth/login"
+              href="/login"
               className="text-white hover:text-white/80 underline transition-all"
             >
               Login here
