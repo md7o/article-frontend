@@ -10,7 +10,7 @@ interface InputProps {
   error?: string;
 }
 
-export default function InputField({
+export default function AuthInputField({
   label,
   type,
   id,

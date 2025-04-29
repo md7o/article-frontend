@@ -3,47 +3,44 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-
-import InputField from "@/components/ui/custom/InputField";
-import { SignupFormData, signupSchema } from "@/lib/authSchema";
+import { LoginFormData, loginSchema } from "@/lib/authSchema"; // corrected
 import GlassCard from "@/components/ui/custom/GlassCard";
-import { AuthContext } from "@/context/AuthContext";
 import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import AuthInputField from "@/components/ui/custom/AuthInputField";
 
-export default function SignupCard() {
+export default function LoginCard() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
 
-  const { signup } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
-  const onSubmit = async (data: SignupFormData) => {
-    await signup(data);
+  const onSubmit = async ({ email, password }: LoginFormData) => {
+    try {
+      await login(email, password);
+      console.log("Logged in successfully");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <GlassCard title="Create Account">
+      <GlassCard title="Welcome Back">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <InputField
-            label="Username"
-            type="text"
-            id="username"
-            register={register}
-            error={errors.username?.message}
-          />
-          <InputField
+          <AuthInputField
             label="Email"
             type="email"
             id="email"
             register={register}
             error={errors.email?.message}
           />
-          <InputField
+          <AuthInputField
             label="Password"
             type="password"
             id="password"
@@ -55,19 +52,19 @@ export default function SignupCard() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-40 bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-full transition-all duration-300 disabled:opacity-50 cursor-pointer"
+              className="w-[10rem] bg-white/10 hover:bg-white/20 text-white py-3 px-6 rounded-full transition-all duration-300 cursor-pointer"
             >
-              {isSubmitting ? "Signing up…" : "Sign Up"}
+              {isSubmitting ? "Logging in..." : "Login"}
             </button>
           </div>
 
           <p className="text-center text-white/60 text-sm mt-6">
-            Already have an account?{" "}
+            Don’t have an account?{" "}
             <Link
-              href="/login"
+              href="/signup"
               className="text-white hover:text-white/80 underline transition-all"
             >
-              Login here
+              Sign up here
             </Link>
           </p>
         </form>

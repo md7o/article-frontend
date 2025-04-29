@@ -18,96 +18,106 @@ export interface SignupData {
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;               // ← add loading state
   login: (email: string, password: string) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  me: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  loading: true,                  // initial loading
   login: async () => {},
   signup: async () => {},
-  logout: () => {},
+  logout: async () => {},
+  me: async () => {},
 });
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
-const TOKEN_KEY = "token";
-
-/** Decode JWT payload into our User shape */
-function decodeToken(token: string): User | null {
-  try {
-    const [, payload] = token.split(".");
-    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const { email, username } = JSON.parse(atob(base64));
-    return { email, username };
-  } catch {
-    return null;
-  }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);   // ← loading starts true
   const router = useRouter();
 
-  // Initialize user from token
-  useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const userData = token && decodeToken(token);
-    if (userData) {
-      setUser(userData);
-    } else {
-      localStorage.removeItem(TOKEN_KEY);
+  const me = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser({ email: data.email, username: data.username });
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);                          // ← turn off loading
     }
   }, []);
 
+  // 🔔 call me() once when provider mounts
+  useEffect(() => {
+    me();
+  }, [me]);
+
+  // ✅ 2. Login
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
+        credentials: "include", // <=== send cookie
       });
+
       if (!res.ok) throw new Error("Login failed");
 
-      const { access_token: token } = await res.json();
-      const userData = decodeToken(token);
-      if (!userData) throw new Error("Invalid token");
+      const { user } = await res.json();
+      setUser(user);
 
-      localStorage.setItem(TOKEN_KEY, token);
-      setUser(userData);
       router.push("/");
     },
     [router]
   );
 
+  // ✅ 3. Signup
   const signup = useCallback(
     async (data: SignupData) => {
       const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        credentials: "include",
       });
+
       if (!res.ok) throw new Error("Signup failed");
 
-      const { access_token: token, user: returnedUser } = await res.json();
-      const userData = returnedUser ?? decodeToken(token);
-      if (!userData) throw new Error("Invalid server response");
+      const { user } = await res.json();
+      setUser(user);
 
-      localStorage.setItem(TOKEN_KEY, token);
-      setUser(userData);
       router.push("/");
     },
     [router]
   );
+  
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
+  // ✅ 4. Logout (call backend to clear cookie)
+  const logout = useCallback(async () => {
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include", // <--- to send cookie so backend can clear it
+    });
+
     setUser(null);
     router.push("/login");
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, me, loading }}>
       {children}
     </AuthContext.Provider>
   );
