@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-export type User = { email: string; username: string };
+export type User = { email: string; username: string; id?: string };
 export interface SignupData {
   username: string;
   email: string;
@@ -18,7 +18,7 @@ export interface SignupData {
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;               // ← add loading state
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
@@ -27,7 +27,7 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true,                  // initial loading
+  loading: true,
   login: async () => {},
   signup: async () => {},
   logout: async () => {},
@@ -38,82 +38,112 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);   // ← loading starts true
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  // Initialize auth state from cookie
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        await me();
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initializeAuth();
+  }, []);
 
   const me = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/auth/me`, {
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+
       if (res.ok) {
         const data = await res.json();
-        setUser({ email: data.email, username: data.username });
+        setUser({
+          email: data.email,
+          username: data.username,
+          id: data.id,
+        });
       } else {
         setUser(null);
       }
-    } catch {
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
       setUser(null);
-    } finally {
-      setLoading(false);                          // ← turn off loading
     }
   }, []);
 
-  // 🔔 call me() once when provider mounts
-  useEffect(() => {
-    me();
-  }, [me]);
-
-  // ✅ 2. Login
   const login = useCallback(
     async (email: string, password: string) => {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        credentials: "include", // <=== send cookie
-      });
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          credentials: "include",
+        });
 
-      if (!res.ok) throw new Error("Login failed");
+        if (!res.ok) throw new Error("Login failed");
 
-      const { user } = await res.json();
-      setUser(user);
-
-      router.push("/");
+        const { user } = await res.json();
+        setUser(user);
+        router.push("/");
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
     },
     [router]
   );
 
-  // ✅ 3. Signup
   const signup = useCallback(
     async (data: SignupData) => {
-      const res = await fetch(`${API_URL}/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include",
+        });
 
-      if (!res.ok) throw new Error("Signup failed");
+        if (!res.ok) throw new Error("Signup failed");
 
-      const { user } = await res.json();
-      setUser(user);
-
-      router.push("/");
+        const { user } = await res.json();
+        setUser(user);
+        router.push("/");
+      } catch (error) {
+        console.error("Signup error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
     },
     [router]
   );
-  
 
-  // ✅ 4. Logout (call backend to clear cookie)
   const logout = useCallback(async () => {
-    await fetch(`${API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include", // <--- to send cookie so backend can clear it
-    });
-
-    setUser(null);
-    router.push("/login");
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      router.push("/login");
+    }
   }, [router]);
 
   return (
