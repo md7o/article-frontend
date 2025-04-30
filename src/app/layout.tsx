@@ -32,8 +32,9 @@ export default function RootLayout({
         className={`${IBMPlexSans.variable} ${IBMPlexMono.variable}  bg-gradient-to-tl from-bg1 to-bg2 min-h-screen`}
       >
         <Providers>
-          <Header/>
-          {children}</Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );
