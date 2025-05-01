@@ -1,5 +1,5 @@
-import { IGridItem, homeGrids } from '@/lib/HomeGrids';
-import Image from 'next/image';
+import { IGridItem, homeGrids } from "@/lib/HomeGrids";
+import Image from "next/image";
 
 interface GridItemPageProps {
   params: { id: string };
@@ -7,7 +7,7 @@ interface GridItemPageProps {
 
 export default function GridItemPage({ params }: GridItemPageProps) {
   const item = homeGrids.find((item: IGridItem) => item.id === params.id);
-  
+
   if (!item) {
     return <div>Item not found</div>;
   }
@@ -23,13 +23,13 @@ export default function GridItemPage({ params }: GridItemPageProps) {
             className="object-cover rounded-lg"
           />
         </div>
-        
+
         <div>
           <h1 className="text-4xl font-bold mb-4">{item.title}</h1>
           {item.description && (
             <p className="text-xl mb-6">{item.description}</p>
           )}
-          
+
           <div className="mt-8">
             <a href="/" className="text-blue-600 hover:underline">
               &larr; Back to all items

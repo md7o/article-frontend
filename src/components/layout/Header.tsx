@@ -1,19 +1,11 @@
 "use client";
 
-import { Input } from "../ui/shadcn/InputField";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCircleHalfStroke,
-  faHeart,
-  faMagnifyingGlass,
-  faUser,
-  faRightFromBracket,
-  faBars,
-  faX,
-} from "@fortawesome/free-solid-svg-icons";
+import { Input } from "../ui/custom/InputField";
+
 import { useContext, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
+import { Heart, CircleUserRound, Palette, Search } from "lucide-react";
 
 export default function Header() {
   const { user, loading, logout } = useContext(AuthContext);
@@ -35,53 +27,38 @@ export default function Header() {
       <header className="w-full max-w-[100rem] mb-5 mt-10 flex justify-between items-center bg-primary rounded-fully p-2 mx-auto">
         {/* Logo and Search (left side) */}
         <div className="flex items-center gap-1">
-          <h1 className="text-2xl p-4 font-black bg-secondary rounded-fully whitespace-nowrap">
-            WebSite LOGO
-          </h1>
+          <Link href={"/"}>
+            <h1 className="text-2xl p-4 font-black bg-secondary rounded-fully whitespace-nowrap">
+              WebSite LOGO
+            </h1>
+          </Link>
           <div className="hidden md:block">
-            <Input
-              placeholder="Search blogs..."
-              icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
-            />
+            <Input placeholder="Search blogs..." icon={<Search />} />
           </div>
         </div>
 
         {/* Desktop Navigation (right side) */}
         <div className="hidden md:flex items-center gap-2">
           <div className={iconStyle}>
-            <FontAwesomeIcon icon={faHeart} className="text-xl" />
+            <Heart fill="white" className="text-xl" />
           </div>
           <div className={iconStyle}>
-            <FontAwesomeIcon icon={faCircleHalfStroke} className="text-xl" />
+            <Palette className="text-xl" />
           </div>
 
           <Link href={user ? "/profile" : "/login"}>
             <div className={`${iconStyle} gap-2 w-auto px-4`}>
-              <FontAwesomeIcon
-                icon={faUser}
-                className="p-4 rounded-fully bg-secondary text-xl"
-              />
-              {loading ? (
-                <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-80 backdrop-blur-sm w-full z-50 overflow-y-auto">
-                  <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="w-14 h-14 border-2 border-t-primary border-gray-300 rounded-fully animate-spin" />
-                  </div>
+              <CircleUserRound size={30} />
+
+              {user && loading ? (
+                <div className="fixed inset-0 flex justify-center items-center bg-black/70 backdrop-blur-lg w-full z-50">
+                  <div className="w-14 h-14 border-2 border-t-primary border-gray-300 rounded-fully animate-spin" />
                 </div>
               ) : (
-                <h1>{user ? user?.username : "Signup"}</h1>
+                <p className="text-xl">{user ? user.username : "Signup"}</p>
               )}
             </div>
           </Link>
-
-          {user && (
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 text-white hover:text-red-500"
-            >
-              <FontAwesomeIcon icon={faRightFromBracket} />
-              Logout
-            </button>
-          )}
         </div>
 
         {/* Mobile Menu Button (only visible on mobile) */}
@@ -89,7 +66,7 @@ export default function Header() {
           className="md:hidden p-4 rounded-fully bg-secondary text-xl"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          <FontAwesomeIcon icon={isMobileMenuOpen ? faX : faBars} />
+          {/* <FontAwesomeIcon icon={isMobileMenuOpen ? faX : faBars} /> */}
         </button>
       </header>
 
@@ -105,7 +82,7 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 rounded-fully"
             >
-              <FontAwesomeIcon icon={faX} className="text-xl" />
+              {/* <FontAwesomeIcon icon={faX} className="text-xl" /> */}
             </button>
           </div>
 
@@ -113,26 +90,23 @@ export default function Header() {
             <div className="mb-4">
               <Input
                 placeholder="Search blogs..."
-                icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
+                // icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
               />
             </div>
 
             <button className={`${iconStyle} justify-start gap-4 w-full px-4`}>
-              <FontAwesomeIcon icon={faHeart} className="text-xl" />
+              <Heart fill="white" className="text-xl" />
               <span>Favorites</span>
             </button>
 
             <button className={`${iconStyle} justify-start gap-4 w-full px-4`}>
-              <FontAwesomeIcon icon={faCircleHalfStroke} className="text-xl" />
+              <Palette fill="white" className="text-xl" />
               <span>Theme</span>
             </button>
 
             <Link href={user ? "/profile" : "/login"}>
               <div className={`${iconStyle} justify-start gap-4 w-full px-4`}>
-                <FontAwesomeIcon
-                  icon={faUser}
-                  className="p-4 rounded-fully bg-secondary text-xl"
-                />
+                {/* <circle-user-round className="p-4 rounded-fully bg-secondary text-xl" /> */}
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-t-primary border-gray-300 rounded-fully animate-spin" />
                 ) : (
@@ -149,7 +123,7 @@ export default function Header() {
                 }}
                 className="flex items-center gap-4 text-white hover:text-red-500 p-4"
               >
-                <FontAwesomeIcon icon={faRightFromBracket} />
+                {/* <FontAwesomeIcon icon={faRightFromBracket} /> */}
                 <span>Logout</span>
               </button>
             )}
