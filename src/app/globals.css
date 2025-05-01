@@ -1,18 +1,13 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme {
   /* Color */
   --color-bg1: #070707;
   --color-bg2: #393939;
-  --color-primary: #0d0e11;
+  --color-primary: rgba(0, 0, 0, 0.2);
+  --color-secondary: rgba(0, 0, 0, 0.2);
+  --color-active: rgba(0, 0, 0, 0.7);
   --color-text: #ff8000;
-  --color-icon: #e9934d;
-  --color-active: #ffeaa5;
   --color-pharagraph: #99a1af;
 
   /* Font */
@@ -22,18 +17,24 @@
   --radius-lighter: 10px;
   --radius-light: 20px;
   --radius-mid: 30px;
+  --radius-large: 40px;
+  --radius-fully: 999px;
 
   /* Breakpoints */
   --breakpoint-3xl: 120rem;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Setting SideBar */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
 body {
   font-family: var(--font-IBMPlexSans);
+  color: #ffffff;
 }

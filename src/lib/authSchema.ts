@@ -1,7 +1,7 @@
 // lib/validation/authSchema.ts
 import { z } from "zod";
 
-// ✅ Base schema used for both login & signup
+// Base schema used for both login & signup
 export const baseAuthSchema = z.object({
   email: z
     .string()
@@ -11,19 +11,18 @@ export const baseAuthSchema = z.object({
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters." })
-    // .regex(/[A-Z]/, { message: "Must include at least one uppercase letter." })
     .regex(/\d/, { message: "Must include at least one number." }),
 });
 
-// ✅ Login schema (same as base)
+// Login schema (extends base schema)
 export const loginSchema = baseAuthSchema;
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-// ✅ Signup schema (extends base with `username`)
+// Signup schema (extends base schema with `username`)
 export const signupSchema = baseAuthSchema.extend({
   username: z
     .string()
-    .min(2, { message: "Username must be at least 2 character." })
+    .min(2, { message: "Username must be at least 2 characters." })
     .max(15, { message: "Username can’t exceed 15 characters." }),
 });
 export type SignupFormData = z.infer<typeof signupSchema>;

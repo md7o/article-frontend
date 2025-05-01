@@ -1,69 +1,153 @@
-'use client';
+"use client";
 
-import { createContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
+import { useRouter } from "next/navigation";
 
-export type User = { email: string };
-
-export interface SignupData { username: string; email: string; password: string; }
+export type User = { email: string; username: string; id?: string };
+export interface SignupData {
+  username: string;
+  email: string;
+  password: string;
+}
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
   signup: (data: SignupData) => Promise<void>;
+  logout: () => Promise<void>;
+  me: () => Promise<void>;
 }
 
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  login: async () => {},
+  signup: async () => {},
+  logout: async () => {},
+  me: async () => {},
+});
 
-export const AuthContext = createContext<AuthContextType>(null!);
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Initialize auth state from cookie
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const { email } = JSON.parse(atob(token.split('.')[1]));
-      setUser({ email });
+    const initializeAuth = async () => {
+      try {
+        await me();
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initializeAuth();
+  }, []);
+
+  const me = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser({
+          email: data.email,
+          username: data.username,
+          id: data.id,
+        });
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setUser(null);
     }
   }, []);
 
-  async function login(email: string, password: string) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const { access_token } = await res.json();
-    localStorage.setItem('token', access_token);
-    const { email: e } = JSON.parse(atob(access_token.split('.')[1]));
-    setUser({ email: e });
-    router.push('/dashboard');
-  }
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          credentials: "include",
+        });
 
-  async function signup(data: SignupData) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('Signup failed');
-    const { access_token } = await res.json();
-    localStorage.setItem('token', access_token);
-    const { email } = JSON.parse(atob(access_token.split('.')[1]));
-    setUser({ email });
-    router.push('/dashboard');
-  }
+        if (!res.ok) throw new Error("Login failed");
 
-  function logout() {
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/login');
-  }
+        const { user } = await res.json();
+        setUser(user);
+        router.push("/");
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const signup = useCallback(
+    async (data: SignupData) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error("Signup failed");
+
+        const { user } = await res.json();
+        setUser(user);
+        router.push("/");
+      } catch (error) {
+        console.error("Signup error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      router.push("/login");
+    }
+  }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, me, loading }}>
       {children}
     </AuthContext.Provider>
   );
