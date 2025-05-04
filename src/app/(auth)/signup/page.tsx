@@ -1,4 +1,4 @@
-import SignupCard from "@/components/AuthComponents/SignupCard";
+import SignupCard from "@/components/pages/AuthComponents/SignupCard";
 
 export default function Signup() {
   return <SignupCard />;

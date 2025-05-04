@@ -1,5 +1,5 @@
 import { homeGrids } from "@/lib/HomeGrids";
-import GridItem from "@/components/HomeComponents/GridItem";
+import GridItem from "@/components/pages/HomeComponents/GridItem";
 
 export default async function Home() {
   // Get individual items

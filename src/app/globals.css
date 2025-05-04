@@ -2,13 +2,12 @@
 
 @theme {
   /* Color */
-  --color-bg1: #070707;
+  --color-bg1: #171717;
   --color-bg2: #393939;
   --color-primary: rgba(0, 0, 0, 0.2);
   --color-secondary: rgba(0, 0, 0, 0.2);
   --color-active: rgba(0, 0, 0, 0.7);
-  --color-text: #ff8000;
-  --color-pharagraph: #99a1af;
+  --color-hover: #ffffff6e;
 
   /* Font */
   --font-lato: "Lato", sans-serif;
@@ -37,4 +36,31 @@
 body {
   font-family: var(--font-IBMPlexSans);
   color: #ffffff;
+}
+
+/* Text color */
+.ce-block__content,
+.ce-toolbar__content {
+  color: white; /* gray-700 */
+}
+
+/* Placeholder color */
+.ce-paragraph[data-placeholder]:empty::before {
+  color: #9ca3af; /* gray-400 */
+}
+
+/* Add button (plus button) */
+.ce-toolbar__plus {
+  color: white;
+}
+.ce-toolbar__plus:hover {
+  color: #171717;
+}
+
+/* Settings buttons */
+.ce-toolbar__settings-btn {
+  color: white;
+}
+.ce-toolbar__settings-btn:hover {
+  color: #171717;
 }
