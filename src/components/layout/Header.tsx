@@ -5,7 +5,13 @@ import { Input } from "../ui/custom/InputField";
 import { useContext, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
-import { Heart, CircleUserRound, Palette, Search } from "lucide-react";
+import {
+  Heart,
+  CircleUserRound,
+  Palette,
+  Search,
+  SquarePen,
+} from "lucide-react";
 
 export default function Header() {
   const { user, loading, logout } = useContext(AuthContext);
@@ -39,13 +45,25 @@ export default function Header() {
 
         {/* Desktop Navigation (right side) */}
         <div className="hidden md:flex items-center gap-2">
+          {/* === Write === */}
+          <Link href={"/write"}>
+            <div
+              className={`flex justify-center items-center hover:opacity-70 duration-200 gap-2 w-auto px-4`}
+            >
+              <SquarePen size={30} />
+
+              <p className="text-xl">Write</p>
+            </div>
+          </Link>
+          {/* === Heart === */}
           <div className={iconStyle}>
-            <Heart fill="white" className="text-xl" />
+            <Heart />
           </div>
+          {/* === Theme === */}
           <div className={iconStyle}>
             <Palette className="text-xl" />
           </div>
-
+          {/* === Profile === */}
           <Link href={user ? "/profile" : "/login"}>
             <div className={`${iconStyle} gap-2 w-auto px-4`}>
               <CircleUserRound size={30} />
@@ -70,6 +88,7 @@ export default function Header() {
         </button>
       </header>
 
+      {/*========================================================================================================================================================================================== */}
       {/* Mobile Menu (slides in from right) */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-primary z-50 transform transition-transform duration-300 ease-in-out shadow-2xl ${

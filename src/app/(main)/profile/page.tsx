@@ -1,8 +1,8 @@
 "use client";
 
-import AccountComponent from "@/components/settings/Account";
-import AppearanceComponent from "@/components/settings/Appearance";
-import ProfileComponent from "@/components/settings/Profile";
+import AccountComponent from "@/components/pages/settings/Account";
+import AppearanceComponent from "@/components/pages/settings/Appearance";
+import ProfileComponent from "@/components/pages/settings/Profile";
 import { AuthContext } from "@/context/AuthContext";
 import { Home, Moon, User, LogOut } from "lucide-react";
 import { useState, JSX, useContext } from "react";
