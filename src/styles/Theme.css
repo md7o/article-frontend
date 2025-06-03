@@ -1,0 +1,31 @@
+@theme {
+  /* Color */
+  --color-bg1: #171717;
+  --color-container: #141414;
+  --color-button: #1f1f1f;
+  --color-primary: rgba(0, 0, 0, 0.2);
+  --color-active: rgba(0, 0, 0, 0.7);
+  --color-hover: #ffffff6e;
+
+  /* Font */
+  --font-lato: "Lato", sans-serif;
+  --font-IBMPlexSans: "IBM Plex Sans", sans-serif;
+
+  /* Rounded */
+  --radius-lighter: 10px;
+  --radius-light: 20px;
+  --radius-mid: 30px;
+  --radius-large: 40px;
+  --radius-fully: 999px;
+
+  /* SideBar */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+}
+
+body {
+  font-family: var(--font-IBMPlexSans);
+  color: #ffffff;
+  background: var(--color-bg1);
+}

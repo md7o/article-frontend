@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import Header from "@/components/layout/Header";
+import ConditionalHeader from "@/components/layout/ConditionalHeader";
 
 const IBMPlexSans = IBM_Plex_Sans({
   variable: "--font-IBMPlexSans",
@@ -29,10 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${IBMPlexSans.variable} ${IBMPlexMono.variable}  bg-gradient-to-tl from-bg1 to-bg2 min-h-screen`}
+        className={`${IBMPlexSans.variable} ${IBMPlexMono.variable}  bg-bg1`}
       >
         <Providers>
-          <Header />
+          <ConditionalHeader />
           {children}
         </Providers>
       </body>
