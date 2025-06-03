@@ -1,12 +1,13 @@
-// utils/initEditor.ts
-import EditorJS from "@editorjs/editorjs";
+import EditorJS, { OutputData } from "@editorjs/editorjs";
 import ImageTool from "@editorjs/image";
 import Prism from "prismjs";
-import CustomCodeTool from "../tools/CustomCodeTool";
+import CustomCodeTool from "./CustomCodeTool";
 
 interface InitEditorProps {
-  holder: HTMLElement;
+  holder: string | HTMLElement;
   placeholder?: string;
+  data?: OutputData;
+  onReady?: () => void;
 }
 
 export const initEditor = ({

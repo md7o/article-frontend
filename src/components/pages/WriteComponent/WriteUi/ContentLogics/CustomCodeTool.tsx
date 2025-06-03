@@ -30,7 +30,7 @@ class CustomCodeTool {
     this.wrapper.classList.add(
       "editorjs-code-wrapper",
       "bg-gray-800",
-      "w-[30rem]",
+      "w-[40rem]",
       "mx-auto",
       "rounded-2xl",
       "p-4",
@@ -87,7 +87,6 @@ class CustomCodeTool {
       "m-0",
       "p-0",
       "bg-transparent",
-      "w-[10rem]",
       "line-numbers",
       "overflow-x-auto",
       "rounded-lg"
@@ -156,18 +155,28 @@ class CustomCodeTool {
     selection?.addRange(range);
   }
 
+  // tools/CustomCodeTool.ts
   private highlightCode() {
     if (!this.codeElement) return;
 
     const code = this.codeElement.textContent || "";
     const language = this.languageSelect?.value || "javascript";
 
-    const tempElement = document.createElement("code");
-    tempElement.textContent = code;
-    tempElement.className = `language-${language}`;
-    Prism.highlightElement(tempElement);
+    // Create temporary element for highlighting
+    const pre = document.createElement("pre");
+    const codeEl = document.createElement("code");
+    pre.className = `language-${language} line-numbers`;
+    codeEl.className = `language-${language}`;
+    codeEl.textContent = code;
 
-    this.codeElement.innerHTML = tempElement.innerHTML;
+    pre.appendChild(codeEl);
+    Prism.highlightElement(codeEl);
+
+    // Replace content with highlighted version
+    this.codeElement.innerHTML = pre.innerHTML;
+
+    // Initialize line numbers
+    Prism.plugins.lineNumbers.highlightLines(this.codeElement);
   }
 
   save() {

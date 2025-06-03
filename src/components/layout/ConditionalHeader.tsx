@@ -7,6 +7,12 @@ export default function ConditionalHeader() {
   const path = usePathname();
   if (path === "/write") {
     return null;
+  } else if (path === "/projects") {
+    return null;
+  } else if (path === "/live-projects") {
+    return null;
+  } else if (path === "/about") {
+    return null;
   }
   return <Header />;
 }

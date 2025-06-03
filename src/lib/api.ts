@@ -8,7 +8,7 @@ export async function signup(data: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  return res.json(); // { access_token }
+  return res.json();
 }
 
 export async function login(data: { email: string; password: string }) {
@@ -17,7 +17,7 @@ export async function login(data: { email: string; password: string }) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  return res.json(); // { access_token }
+  return res.json();
 }
 
 export async function getById(id: string) {
@@ -30,5 +30,5 @@ export async function getById(id: string) {
     throw new Error(`Failed to fetch user with ID ${id}: ${res.statusText}`);
   }
 
-  return res.json(); // User data
+  return res.json();
 }

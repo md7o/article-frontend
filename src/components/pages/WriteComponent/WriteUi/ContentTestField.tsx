@@ -9,7 +9,7 @@ interface InputProps {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
 }
 
-export default function TitleField({
+export default function ContentTestField({
   label,
   value,
   onChange,
@@ -24,14 +24,11 @@ export default function TitleField({
 
   return (
     <div className="group mb-4 flex justify-center items-center">
-      <p className="px-5 text-white/50 opacity-0 group-focus-within:opacity-100 transition-opacity">
-        {label}
-      </p>
       <textarea
         ref={textareaRef}
         value={value}
         onChange={onChange}
-        className="w-[45rem] text-4xl px-3 py-2 focus:outline-none focus:border-l-2 focus:border-white/30 placeholder-hover transition-all resize-none overflow-hidden"
+        className="w-[40rem] text-2xl px-3 py-2 focus:outline-none focus:border-l-2 focus:border-white/30 placeholder-hover transition-all resize-none overflow-hidden"
         placeholder={label}
         rows={1}
       />

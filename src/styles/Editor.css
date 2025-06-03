@@ -1,0 +1,22 @@
+.ce-block__content,
+.ce-toolbar__content {
+  color: white;
+}
+
+.ce-paragraph[data-placeholder]:empty::before {
+  color: #9ca3af;
+}
+
+.ce-toolbar__plus {
+  color: white;
+  &:hover {
+    color: #171717;
+  }
+}
+
+.ce-toolbar__settings-btn {
+  color: white;
+  &:hover {
+    color: #171717;
+  }
+}

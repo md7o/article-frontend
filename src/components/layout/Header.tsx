@@ -30,7 +30,7 @@ export default function Header() {
         />
       )}
 
-      <header className="w-full max-w-[100rem] mb-5 mt-10 flex justify-between items-center bg-primary rounded-fully p-2 mx-auto">
+      <header className="w-full max-w-[100rem] mb-5 mt-5 flex justify-between items-center bg-primary rounded-fully p-2 mx-auto">
         {/* Logo and Search (left side) */}
         <div className="flex items-center gap-1">
           <Link href={"/"}>
@@ -88,7 +88,7 @@ export default function Header() {
         </button>
       </header>
 
-      {/*========================================================================================================================================================================================== */}
+      {/*========================================================================================================================================= */}
       {/* Mobile Menu (slides in from right) */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-primary z-50 transform transition-transform duration-300 ease-in-out shadow-2xl ${
