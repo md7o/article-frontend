@@ -57,7 +57,8 @@ export const getImageUrl = (filename: string) => {
   // Make sure the filename doesn't include the full URL
   const cleanFilename = filename.split("/").pop() || filename;
   // Use the images endpoint for retrieving images
-  return `http://localhost:4000/images/${cleanFilename}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  return `${baseUrl}/images/${cleanFilename}`;
 };
 
 export default uploadImage;

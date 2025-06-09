@@ -24,11 +24,6 @@ export default async function ArticleDetailPage({ params }: Props) {
       <p className="text-sm text-gray-500 mb-2">
         Published on {new Date(article.createdAt).toLocaleDateString()}
       </p>
-      <img
-        src={article.imageUrl || "/assets/images/bg.jpg"}
-        alt={article.title}
-        className="w-full h-auto rounded mb-6"
-      />
       <div className="prose prose-lg">{article.content}</div>
     </div>
   );

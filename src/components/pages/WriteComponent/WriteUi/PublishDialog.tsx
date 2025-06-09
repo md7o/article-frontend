@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/shadcn/dialog";
 import { Button } from "@/components/ui/shadcn/button";
 import { Loader2, ImageIcon } from "lucide-react";
-import uploadImage, { getImageUrl } from "@/lib/uploadImage";
+import uploadImage from "@/lib/uploadImage";
 
 interface PublishDialogProps {
   open: boolean;
@@ -90,7 +90,7 @@ export default function PublishDialog({
                 <img
                   src={
                     uploadedFilename
-                      ? getImageUrl(uploadedFilename)
+                      ? `${process.env.NEXT_PUBLIC_API_URL}/${uploadedFilename}`
                       : URL.createObjectURL(selectedFile)
                   }
                   alt="Preview"

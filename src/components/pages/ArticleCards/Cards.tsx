@@ -25,8 +25,8 @@ const Cards: React.FC<ArticleCardProps> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="bg-primary rounded-2xl shadow-md overflow-hidden group hover:shadow-lg transition-all duration-300">
-      <div className="relative h-48">
+    <div className="bg-primary rounded-lighter shadow-md overflow-hidden group hover:shadow-lg transition-all duration-300">
+      <div className="relative ">
         {!imageError ? (
           <>
             {isLoading && (
@@ -37,7 +37,8 @@ const Cards: React.FC<ArticleCardProps> = ({
             <img
               src={imageUrl}
               alt={title}
-              className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+              // fill
+              className={`wobject-cover transition-transform duration-300 group-hover:scale-105 ${
                 isLoading ? "opacity-0" : "opacity-100"
               }`}
               onError={() => {
