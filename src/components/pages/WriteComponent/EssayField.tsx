@@ -1,67 +1,47 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import TitleField from "./WriteUi/TitleField";
+import axios from "axios";
 import Link from "next/link";
 import { CircleUserRound, Goal } from "lucide-react";
 import { AuthContext } from "@/context/AuthContext";
-import { useContext, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ContentFieldHandle } from "./WriteUi/ContentLogics/ContentField";
+import { useArticles } from "@/context/ArticlesContext";
+import { useContext, useState } from "react";
 import ContentTestField from "./WriteUi/ContentTestField";
 import PublishDialog from "./WriteUi/PublishDialog";
-const ContentField = dynamic(
-  () => import("./WriteUi/ContentLogics/ContentField"),
-  {
-    ssr: false,
-    loading: () => (
-      <p className=" max-w-[40rem] mx-auto text-gray-300 p-5">
-        Loading editor...
-      </p>
-    ),
-  }
-);
+import { JSONContent } from "@tiptap/react";
 
 export default function EssayField() {
   const { user, loading } = useContext(AuthContext);
+  const { refreshArticles } = useArticles();
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [editorContent, setEditorContent] = useState<JSONContent>({
+    type: "doc",
+    content: [{ type: "paragraph" }],
+  });
   const [submitting, setSubmitting] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
-  const contentRef = useRef<ContentFieldHandle>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const router = useRouter();
-
   const handleSubmit = async (imageFilename: string) => {
     if (!title.trim()) return alert("Title is required");
-    if (!content.trim()) return alert("Content is required");
+    if (!editorContent.content?.length) return alert("Content is required");
     if (!imageFilename) return alert("Cover image is required");
 
     try {
       setSubmitting(true);
-
-      const response = await fetch("http://localhost:4000/articles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title,
-          content,
-          coverImage: imageFilename,
-        }),
+      // Convert TipTap content to HTML or handle it as needed for your backend
+      await axios.post(process.env.NEXT_PUBLIC_API_URL + "/articles", {
+        title,
+        content: editorContent,
+        coverImage: imageFilename,
       });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Failed to post article");
-      }
-
-      const data = await response.json();
-      router.push(`/articles/${data.id}`);
-    } catch (err: any) {
+      await refreshArticles(); // Refresh the articles list after successful creation
+    } catch (err: unknown) {
       console.error("Submit Error:", err);
-      alert(err.message || "Failed to publish article");
+      if (axios.isAxiosError(err)) {
+        alert(err.response?.data?.message || "Failed to publish article");
+      } else {
+        alert("Failed to publish article");
+      }
     } finally {
       setSubmitting(false);
       setShowPublishDialog(false);
@@ -96,7 +76,7 @@ export default function EssayField() {
             onConfirm={handleSubmit}
             isSubmitting={submitting}
             title={title}
-            content={content}
+            content={editorContent}
           />
 
           <Link href={user ? "/profile" : "/login"}>
@@ -115,15 +95,11 @@ export default function EssayField() {
         label="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        textareaRef={textareaRef}
       />
       <ContentTestField
-        label="Insert yout creativity"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        textareaRef={textareaRef}
+        onChange={setEditorContent}
+        initialContent={editorContent}
       />
-      {/* <ContentField ref={contentRef} label="Insert your creativity" /> */}
     </>
   );
 }

@@ -28,9 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${IBMPlexSans.variable} ${IBMPlexMono.variable}  bg-bg1`}
-      >
+      <body className={`${IBMPlexSans.variable} ${IBMPlexMono.variable}`}>
         <Providers>
           <ConditionalHeader />
           {children}

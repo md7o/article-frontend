@@ -13,7 +13,7 @@ export interface Article {
   id: string;
   slug: string;
   title: string;
-  content: any;
+  content: unknown;
   createdAt: string;
   coverImage?: string; // The filename of the uploaded image
 }
@@ -28,6 +28,7 @@ interface ArticlesContextValue {
     id: string,
     data: Partial<Pick<Article, "title">>
   ) => Promise<void>;
+  refreshArticles: () => Promise<void>;
 }
 
 const ArticlesContext = createContext<ArticlesContextValue | undefined>(
@@ -50,9 +51,9 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       setArticles(data);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -64,9 +65,9 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
       setArticles((prev) => prev.filter((a) => a.id !== id));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -85,9 +86,9 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
       setArticles((prev) =>
         prev.map((a) => (a.id === id ? { ...a, ...data } : a))
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message);
+      setError(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -95,6 +96,9 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchArticles();
   }, []);
+  const refreshArticles = async () => {
+    await fetchArticles();
+  };
 
   return (
     <ArticlesContext.Provider
@@ -105,6 +109,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
         fetchArticles,
         deleteArticle,
         updateArticle,
+        refreshArticles,
       }}
     >
       {children}
