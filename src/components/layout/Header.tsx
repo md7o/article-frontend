@@ -5,11 +5,17 @@ import { Input } from "../ui/custom/InputField";
 import { useContext, useState } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
-import { Heart, CircleUserRound, Palette, Search } from "lucide-react";
+import { CircleUserRound, Palette, Hexagon } from "lucide-react";
 
 export default function Header() {
   const { user, loading, logout } = useContext(AuthContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const headerPharagraph = [
+    { text: "Search", link: "" },
+    { text: "Favorite", link: "" },
+    { text: "Write", link: "/write" },
+  ];
 
   const iconStyle =
     "flex justify-center items-center bg-secondary rounded-fully w-16 h-16 hover:scale-95 hover:bg-active cursor-pointer duration-300";
@@ -19,33 +25,41 @@ export default function Header() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0  bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      <header className="w-full max-w-[100rem] mb-5 mt-10 flex justify-between items-center bg-primary rounded-fully p-2 mx-auto">
+      <header className="w-full flex justify-evenly items-center p-2 mb-5">
         {/* Logo and Search (left side) */}
         <div className="flex items-center gap-1">
           <Link href={"/"}>
-            <h1 className="text-2xl p-4 font-black bg-secondary rounded-fully whitespace-nowrap">
-              WebSite LOGO
-            </h1>
+            <Hexagon
+              size={50}
+              className="hover:text-light-span hover:scale-95 duration-300 "
+            />
           </Link>
-          <div className="hidden md:block">
+          {/* <div className="hidden md:block">
             <Input placeholder="Search blogs..." icon={<Search />} />
-          </div>
+          </div> */}
+        </div>
+
+        <div className="flex gap-10 text-xl ">
+          {headerPharagraph.map((item, index) => (
+            <Link
+              key={index}
+              href={item.link}
+              className="relative pb-2 hover:text-accent transition-colors duration-300"
+            >
+              {item.text}
+              <span className="absolute top-0 left-0 w-full h-0.5 bg-accent origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 rounded-b-lg" />
+            </Link>
+          ))}
         </div>
 
         {/* Desktop Navigation (right side) */}
         <div className="hidden md:flex items-center gap-2">
-          <div className={iconStyle}>
-            <Heart fill="white" className="text-xl" />
-          </div>
-          <div className={iconStyle}>
-            <Palette className="text-xl" />
-          </div>
-
+          {/* === Profile === */}
           <Link href={user ? "/profile" : "/login"}>
             <div className={`${iconStyle} gap-2 w-auto px-4`}>
               <CircleUserRound size={30} />
@@ -70,6 +84,7 @@ export default function Header() {
         </button>
       </header>
 
+      {/*========================================================================================================================================= */}
       {/* Mobile Menu (slides in from right) */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-primary z-50 transform transition-transform duration-300 ease-in-out shadow-2xl ${
@@ -93,11 +108,6 @@ export default function Header() {
                 // icon={<FontAwesomeIcon icon={faMagnifyingGlass} />}
               />
             </div>
-
-            <button className={`${iconStyle} justify-start gap-4 w-full px-4`}>
-              <Heart fill="white" className="text-xl" />
-              <span>Favorites</span>
-            </button>
 
             <button className={`${iconStyle} justify-start gap-4 w-full px-4`}>
               <Palette fill="white" className="text-xl" />
