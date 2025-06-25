@@ -13,6 +13,10 @@ export default function ConditionalHeader() {
     return null;
   } else if (path === "/about") {
     return null;
+  } else if (path === "/admin/login") {
+    return null;
+  } else if (path === "/admin/signup") {
+    return null;
   }
   return <Header />;
 }

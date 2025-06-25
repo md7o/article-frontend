@@ -18,9 +18,7 @@ export default function GridItem({ item }: GridItemProps) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-md group cursor-pointer shadow-md hover:-translate-y-2 hover:opacity-80 duration-300  ${
-        sizeClasses[item.size]
-      } ${item.id === "all-projects" ? "md:row-start-1 md:col-start-3" : ""} ${
+      className={`relative overflow-hidden rounded-md group cursor-pointer shadow-md hover:-translate-y-2 hover:opacity-80 duration-300 ${sizeClasses[item.size]} ${item.id === "all-projects" ? "md:row-start-1 md:col-start-3" : ""} ${
         item.id === "profile" ? "md:row-start-2 md:col-start-3" : ""
       }`}
     >

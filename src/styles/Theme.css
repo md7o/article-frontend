@@ -36,7 +36,7 @@
 }
 
 body {
-  font-family: var(--font-IBMPlexSans);
+  font-family: var(--font-IBMPlexSansArabic);
   color: #ffffff;
   background: var(--color-base);
 }

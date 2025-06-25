@@ -40,7 +40,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = "http://localhost:4000/articles";
+  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/articles`;
 
   // GET
   const fetchArticles = async () => {
@@ -62,7 +62,10 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
   // DELETE
   const deleteArticle = async (id: string) => {
     try {
-      const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/${id}`, {
+        method: "DELETE",
+        credentials: "include", // Include cookies for authentication
+      });
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
       setArticles((prev) => prev.filter((a) => a.id !== id));
     } catch (err: unknown) {
@@ -81,6 +84,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        credentials: "include", // Include cookies for authentication
       });
       if (!res.ok) throw new Error(`Update failed: ${res.status}`);
       setArticles((prev) =>

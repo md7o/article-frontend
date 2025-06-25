@@ -13,7 +13,7 @@ export default function Header() {
 
   const headerPharagraph = [
     { text: "Search", link: "" },
-    { text: "Favorite", link: "" },
+    { text: "About", link: "/about" },
     { text: "Write", link: "/write" },
   ];
 
@@ -30,7 +30,7 @@ export default function Header() {
         />
       )}
 
-      <header className="w-full flex justify-evenly items-center p-2 mb-5">
+      <header className="w-full flex justify-around items-center p-2 my-5">
         {/* Logo and Search (left side) */}
         <div className="flex items-center gap-1">
           <Link href={"/"}>
@@ -39,42 +39,38 @@ export default function Header() {
               className="hover:text-light-span hover:scale-95 duration-300 "
             />
           </Link>
-          {/* <div className="hidden md:block">
-            <Input placeholder="Search blogs..." icon={<Search />} />
-          </div> */}
-        </div>
+        </div>{" "}
+        <div className="flex gap-5 text-lg ">
+          {headerPharagraph
+            .filter((item) => {
+              // Hide "Write" option if user is not logged in
+              if (item.text === "Write" && !user) {
+                return false;
+              }
+              return true;
+            })
+            .map((item, index) => (
+              <Link
+                key={index}
+                href={item.link}
+                className="relative pb-2 hover:text-accent transition-colors duration-300"
+              >
+                {item.text}
+                <span className="absolute top-0 left-0 w-full h-0.5 bg-accent origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 rounded-b-lg" />
+              </Link>
+            ))}
 
-        <div className="flex gap-10 text-xl ">
-          {headerPharagraph.map((item, index) => (
+          {/* Show Login button if user is not authenticated */}
+          {!user && !loading && (
             <Link
-              key={index}
-              href={item.link}
-              className="relative pb-2 hover:text-accent transition-colors duration-300"
+              href="/admin/login"
+              className="relative pb-2 hover:text-accent transition-colors duration-300 text-accent font-medium"
             >
-              {item.text}
+              Login
               <span className="absolute top-0 left-0 w-full h-0.5 bg-accent origin-left scale-x-0 transition-transform duration-300 hover:scale-x-100 rounded-b-lg" />
             </Link>
-          ))}
+          )}
         </div>
-
-        {/* Desktop Navigation (right side) */}
-        <div className="hidden md:flex items-center gap-2">
-          {/* === Profile === */}
-          <Link href={user ? "/profile" : "/login"}>
-            <div className={`${iconStyle} gap-2 w-auto px-4`}>
-              <CircleUserRound size={30} />
-
-              {user && loading ? (
-                <div className="fixed inset-0 flex justify-center items-center bg-black/70 backdrop-blur-lg w-full z-50">
-                  <div className="w-14 h-14 border-2 border-t-primary border-gray-300 rounded-fully animate-spin" />
-                </div>
-              ) : (
-                <p className="text-xl">{user ? user.username : "Signup"}</p>
-              )}
-            </div>
-          </Link>
-        </div>
-
         {/* Mobile Menu Button (only visible on mobile) */}
         <button
           className="md:hidden p-4 rounded-fully bg-secondary text-xl"
@@ -113,17 +109,6 @@ export default function Header() {
               <Palette fill="white" className="text-xl" />
               <span>Theme</span>
             </button>
-
-            <Link href={user ? "/profile" : "/login"}>
-              <div className={`${iconStyle} justify-start gap-4 w-full px-4`}>
-                {/* <circle-user-round className="p-4 rounded-fully bg-secondary text-xl" /> */}
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-t-primary border-gray-300 rounded-fully animate-spin" />
-                ) : (
-                  <span>{user ? user?.username : "Signup"}</span>
-                )}
-              </div>
-            </Link>
 
             {user && (
               <button

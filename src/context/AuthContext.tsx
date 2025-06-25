@@ -22,7 +22,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
-  me: () => Promise<void>;
+  validateSession: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -31,7 +31,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   signup: async () => {},
   logout: async () => {},
-  me: async () => {},
+  validateSession: async () => {},
 });
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        await me();
+        await validateSession();
       } catch {
         setUser(null);
       } finally {
@@ -55,9 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  const me = useCallback(async () => {
+  const validateSession = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/me`, {
+      const res = await fetch(`${API_URL}/auth/validateSession`, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (data: SignupData) => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_URL}/auth/signup`, {
+        const res = await fetch(`${API_URL}/auth/admin/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
@@ -134,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/auth/logout`, {
+      await fetch(`${API_URL}/admin/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -147,7 +147,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, me, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, signup, logout, validateSession, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,4 @@
-export type GridSize = "small" | "medium" | "large" | "huge";
+export type GridSize = "small" | "long" | "large" | "huge";
 
 // Then the interface
 export interface IGridItem {
@@ -27,37 +27,14 @@ export const homeGrids: IGridItem[] = [
     buttonText: "Read More",
     tag: "#Blog",
   },
-  {
-    id: "all-projects",
-    title: "Projects",
-    description: "Things I’ve built or contributed to.",
-    link: "/projects",
-    image: "/assets/images/bg.jpg",
-    size: "medium",
-    background: "bg-[#FFF2D9FF]",
-    textColor: "text-black",
-    buttonText: "Explore",
-    tag: "#Build",
-  },
-  {
-    id: "profile",
-    title: "Contact",
-    description: "Let’s work together.",
-    link: "/contact",
-    image: "/assets/images/bg.jpg",
-    size: "small",
-    background: "bg-[#D6FFBCFF]",
-    textColor: "text-black",
-    buttonText: "Get in Touch",
-    tag: "#Contact",
-  },
+
   {
     id: "about",
     title: "About",
     description: "Who I am and what I do.",
     link: "/about",
     image: "/assets/images/bg.jpg",
-    size: "medium",
+    size: "large",
     background: "bg-[#DCAFFEFF]",
     textColor: "text-black",
     buttonText: "Learn More",
@@ -65,14 +42,26 @@ export const homeGrids: IGridItem[] = [
   },
   {
     id: "live-projects",
-    title: "Live Demos",
+    title: "Live Projects",
     description: "Projects live on the web.",
     link: "live-projects",
     image: "/assets/images/bg.jpg",
-    size: "large",
+    size: "long",
     background: "bg-[#C9FFE8FF]",
     textColor: "text-black",
     buttonText: "View Live",
     tag: "#Live",
+  },
+  {
+    id: "contact",
+    title: "Contact",
+    description: "Get in touch with me.",
+    link: "/contact",
+    image: "/assets/images/bg.jpg",
+    size: "small",
+    background: "bg-[#FFE4B5FF]",
+    textColor: "text-black",
+    buttonText: "Contact Me",
+    tag: "#Contact",
   },
 ];
