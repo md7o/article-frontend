@@ -8,21 +8,41 @@ import InputField from "@/components/ui/custom/AuthInputField";
 import { SignupFormData, signupSchema } from "@/lib/authSchema";
 import GlassCard from "@/components/ui/custom/GlassCard";
 import { AuthContext } from "@/context/AuthContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 export default function SignupCard() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
 
   const { signup } = useContext(AuthContext);
+  const [serverError, setServerError] = useState<string>("");
 
   const onSubmit = async (data: SignupFormData) => {
-    await signup(data);
+    try {
+      setServerError("");
+      await signup(data);
+    } catch (error: any) {
+      const errorMessage = error.message || "An error occurred during signup";
+
+      // If it's an admin secret error, show it as a field error
+      if (
+        errorMessage.toLowerCase().includes("admin secret") ||
+        errorMessage.toLowerCase().includes("invalid admin")
+      ) {
+        setError("adminSecret", {
+          type: "server",
+          message: errorMessage,
+        });
+      } else {
+        setServerError(errorMessage);
+      }
+    }
   };
 
   return (
@@ -50,6 +70,19 @@ export default function SignupCard() {
             register={register}
             error={errors.password?.message}
           />
+          <InputField
+            label="Admin Secret"
+            type="password"
+            id="adminSecret"
+            register={register}
+            error={errors.adminSecret?.message}
+          />
+
+          {serverError && (
+            <div className="text-red-400 text-sm text-center p-3 bg-red-500/10 rounded-lg border border-red-500/20">
+              {serverError}
+            </div>
+          )}
 
           <div className="flex justify-center mt-5">
             <button
@@ -64,7 +97,7 @@ export default function SignupCard() {
           <p className="text-center text-white/60 text-sm mt-6">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href="/admin/login"
               className="text-white hover:text-white/80 underline transition-all"
             >
               Login here

@@ -156,6 +156,7 @@ export default function TextEditor({ onChange, initialContent }: Props) {
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON());
     },
+    immediatelyRender: false,
   });
 
   const handleAddImage = () => {

@@ -61,7 +61,7 @@ export default function LoginCard() {
           <p className="text-center text-white/60 text-sm mt-6">
             Don’t have an account?{" "}
             <Link
-              href="/signup"
+              href="/admin/signup"
               className="text-white hover:text-white/80 underline transition-all"
             >
               Sign up here

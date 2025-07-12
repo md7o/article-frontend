@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { ElementType } from "react";
 import CodeBlock from "@/components/ui/custom/CodeBlock";
-import { typography } from "@/lib/typography";
 import Image from "next/image";
 import { getImageUrl } from "@/api/uploadImage";
+import Link from "next/link";
 
 interface MarkAttrs {
   color?: string;
@@ -51,6 +51,7 @@ interface TipTapContent {
 
 interface Article {
   title: string;
+  titleAlign?: string;
   content: string | TipTapContent;
   coverImage: string;
   createdAt: string;
@@ -71,7 +72,7 @@ const LANGUAGES: Language[] = [
 ];
 
 type Props = {
-  params: Promise<{ idAndSlug: string }>;
+  params: Promise<{ slug: string }>;
 };
 
 const HeadingComponents: Record<number, ElementType> = {
@@ -86,7 +87,7 @@ export default async function ArticleDetailPage({ params }: Props) {
   const resolvedParams = await params;
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/articles/${resolvedParams.idAndSlug}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/articles/${resolvedParams.slug}`,
     {
       cache: "no-store",
     }
@@ -100,10 +101,47 @@ export default async function ArticleDetailPage({ params }: Props) {
       ? JSON.parse(article.content)
       : article.content;
 
+  // Determine title alignment class
+  const titleAlignClass =
+    article.titleAlign === "RIGHT_ALIGN" ? "text-right" : "text-left";
+
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-6xl font-medium mb-6">{article.title}</h1>
-      <div className="relative w-full h-[400px] mb-8 rounded-sm overflow-hidden">
+    <article className="p-6 max-w-4xl mx-auto text-white">
+      <h1
+        className={`text-4xl md:text-6xl font-medium mb-5 text-white ${titleAlignClass}`}
+      >
+        {article.title}
+      </h1>
+
+      {/* User Avatar Section */}
+      <Link href="/about">
+        <div
+          className={`flex items-center gap-2 mb-12 hover:translate-y-1 transition-transform duration-300 ${article.titleAlign === "RIGHT_ALIGN" ? "justify-start flex-row-reverse" : "justify-start"}`}
+        >
+          <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center ">
+            <Image
+              src={"/assets/images/profile.jpg"}
+              alt={"avatar"}
+              width={300}
+              height={300}
+              priority
+              className="object-cover rounded-full border-2 border-accent/30"
+            />
+
+            {/* <User className="w-6 h-6 text-white" /> */}
+          </div>
+          <div
+            className={`flex flex-col ${article.titleAlign === "RIGHT_ALIGN" ? "text-right" : "text-left"}`}
+          >
+            <span className="text-white font-medium">Mohammed Alheraki</span>
+            <span className="text-gray-400 text-sm">
+              Published on {new Date(article.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      </Link>
+
+      <div className="relative w-full h-[400px] mb-5 mt-20 rounded-sm overflow-hidden">
         <Image
           src={
             article.coverImage
@@ -117,14 +155,12 @@ export default async function ArticleDetailPage({ params }: Props) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
         />
       </div>
-      <p className={`${typography.meta} mb-8`}>
-        Published on {new Date(article.createdAt).toLocaleDateString()}
-      </p>{" "}
-      <div className="space-y-4">
+
+      <div className="space-y-4 text-white">
         {content?.content?.map((block: ContentBlock, i: number) => {
           if (block.type === "paragraph") {
             const styles = [];
-            styles.push(typography.body);
+            styles.push("text-base leading-relaxed text-white");
             styles.push("whitespace-pre-wrap");
 
             if (block.attrs?.textAlign === "center") {
@@ -163,7 +199,10 @@ export default async function ArticleDetailPage({ params }: Props) {
           }
           if (block.type === "heading") {
             const level = Math.min(Math.max(block.attrs?.level || 1, 1), 2); // Limit to level 1 or 2
-            const headingStyle = level === 1 ? typography.h2 : typography.h3; // Use h2 and h3 since h1 is for article title
+            const headingStyle =
+              level === 1
+                ? "text-3xl font-bold text-white"
+                : "text-2xl font-semibold text-white"; // Use normal text sizes with white color
             const HeadingTag = HeadingComponents[level] || HeadingComponents[1]; // Fallback to h2 if invalid level
 
             let alignClass = "";
@@ -195,7 +234,12 @@ export default async function ArticleDetailPage({ params }: Props) {
           }
           if (block.type === "bulletList") {
             const styles = [];
-            styles.push("list-none", "pl-8", "space-y-2", typography.body);
+            styles.push(
+              "list-none",
+              "pl-8",
+              "space-y-2",
+              "text-base leading-relaxed text-white"
+            );
 
             if (block.attrs?.textAlign === "center") {
               styles.push("text-center");
@@ -206,8 +250,8 @@ export default async function ArticleDetailPage({ params }: Props) {
             return (
               <ul key={i} className={styles.join(" ")}>
                 {block.content?.map((item: TextBlock, j: number) => (
-                  <li key={j} className="relative pl-2">
-                    <span className="absolute -left-4 top-0">•</span>
+                  <li key={j} className="relative pl-2 text-white">
+                    <span className="absolute -left-4 top-0 text-white">•</span>
                     {item.text}
                   </li>
                 ))}
@@ -216,7 +260,12 @@ export default async function ArticleDetailPage({ params }: Props) {
           }
           if (block.type === "orderedList") {
             const styles = [];
-            styles.push("list-none", "pl-8", "space-y-2", typography.body);
+            styles.push(
+              "list-none",
+              "pl-8",
+              "space-y-2",
+              "text-base leading-relaxed text-white"
+            );
 
             if (block.attrs?.textAlign === "center") {
               styles.push("text-center");
@@ -227,8 +276,10 @@ export default async function ArticleDetailPage({ params }: Props) {
             return (
               <ol key={i} className={styles.join(" ")}>
                 {block.content?.map((item: TextBlock, j: number) => (
-                  <li key={j} className="relative pl-2">
-                    <span className="absolute -left-6 top-0">{j + 1}.</span>
+                  <li key={j} className="relative pl-2 text-white">
+                    <span className="absolute -left-6 top-0 text-white">
+                      {j + 1}.
+                    </span>
                     {item.text}
                   </li>
                 ))}
@@ -239,6 +290,6 @@ export default async function ArticleDetailPage({ params }: Props) {
           return null;
         })}
       </div>
-    </div>
+    </article>
   );
 }

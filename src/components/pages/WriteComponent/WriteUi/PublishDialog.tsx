@@ -234,218 +234,155 @@ export default function PublishDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-3xl w-full p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl">
-        <DialogHeader className="text-center pb-6 border-b border-gray-100">
-          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-            🚀 Ready to Publish?
+      <DialogContent className="max-w-sm min-w-80 w-full mx-4 p-6 rounded-[var(--radius-md)] bg-[var(--color-surface-alt)] border border-white/10 shadow-2xl [&>button]:hidden">
+        <DialogHeader className="pb-4">
+          <DialogTitle className="text-xl font-bold text-white gap-2">
+            🚀 Publish Article
           </DialogTitle>
-          <p className="text-gray-500 mt-2">
-            Review your article before publishing
-          </p>
         </DialogHeader>
 
-        <div className="space-y-6 mt-6">
-          {/* Title Section */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <h3 className="font-semibold text-gray-800">Article Title</h3>
+        <div className="space-y-4">
+          {/* Title Preview */}
+          <div className="bg-surface-elevated p-3 rounded-sm border border-white/10 flex-shrink-0">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full "></div>
+              <span className="text-xs font-medium text-[var(--color-light-span)] uppercase tracking-wide ">
+                Title
+              </span>
             </div>
-            <p className="text-lg text-gray-700 font-medium leading-relaxed">
+            <p className="font-medium text-light-span text-sm line-clamp-2 break-words overflow-hidden">
               {title || "Untitled Article"}
             </p>
           </div>
 
-          {/* Content Preview Section */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <h3 className="font-semibold text-gray-800">Content Preview</h3>
+          {/* Content Preview */}
+          <div className="bg-[var(--color-surface-elevated)] p-3 rounded-[var(--radius-sm)] border border-white/10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full flex-shrink-0"></div>
+              <span className="text-xs font-medium text-[var(--color-light-span)] uppercase tracking-wide">
+                Content
+              </span>
             </div>
-            <p className="text-gray-600 leading-relaxed line-clamp-3">
+            <p className="text-sm text-[var(--color-light-span)] leading-relaxed line-clamp-2 break-words overflow-hidden">
               {content.content?.[0]?.content?.[0]?.text ||
                 "No content available"}
             </p>
           </div>
 
-          {/* Cover Image Section */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <h3 className="font-semibold text-gray-800">Cover Image</h3>
-              <span className="text-red-500 text-sm">*Required</span>
+          {/* Cover Image Upload */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-white">
+                Cover Image
+              </span>
+              <span className="text-xs text-red-400">Required</span>
             </div>
 
-            <div className="space-y-4">
-              {/* File Input */}
-              <div className="relative">
+            {imagePreview ? (
+              /* Image Preview with Replace Option */
+              <div className="relative bg-[var(--color-surface-elevated)] p-3 rounded-[var(--radius-sm)] border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 rounded-sm overflow-hidden border border-white/10">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-white font-medium truncate">
+                      {selectedImage?.name ||
+                        (existingCoverImage ? existingCoverImage : "Uploaded")}
+                    </p>
+                    {selectedImage && (
+                      <p className="text-xs text-[var(--color-light-span)]">
+                        {(selectedImage.size / 1024 / 1024).toFixed(1)} MB
+                      </p>
+                    )}
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      disabled={isUploading}
+                      className="mt-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-[var(--color-accent)] file:text-white hover:file:bg-[var(--color-accent-hover)] file:cursor-pointer border-0 p-0 bg-transparent text-transparent"
+                    />
+                  </div>
+                  {uploadedFilename && (
+                    <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full"></div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Initial File Input */
+              <div className="border border-white/10 bg-[var(--color-surface-elevated)] rounded-sm px-5 py-2">
                 <Input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   disabled={isUploading}
-                  className="file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gradient-to-r file:from-blue-50 file:to-blue-100 file:text-blue-700 hover:file:from-blue-100 hover:file:to-blue-200 file:cursor-pointer border-2 border-dashed border-gray-200 hover:border-blue-300 transition-all duration-300 p-6 bg-gray-50/50 hover:bg-blue-50/50"
+                  className=" border-3 border-dotted file:text-white hover:bg-white/30 cursor-pointer  text-white "
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Supported formats: JPG, PNG, GIF (Max 5MB)
+                <p className="text-xs text-[var(--color-light-span)] mt-2">
+                  Max 5MB • JPG, PNG, GIF
                 </p>
               </div>
+            )}
 
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="relative group">
-                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                    <div className="relative w-24 h-24 rounded-lg overflow-hidden shadow-md">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-green-800 mb-1">
-                        Image Preview
-                      </p>
-                      <p className="text-sm text-green-700 mb-2">
-                        {selectedImage?.name ||
-                          (existingCoverImage
-                            ? `${existingCoverImage}`
-                            : "Uploaded image")}
-                      </p>
-                      {selectedImage && (
-                        <p className="text-xs text-green-600">
-                          Size: {(selectedImage.size / 1024 / 1024).toFixed(2)}{" "}
-                          MB
-                        </p>
-                      )}
-                    </div>
-                    {uploadedFilename && (
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-green-700">
-                          Uploaded
-                        </span>
-                      </div>
-                    )}
-                  </div>
+            {/* Status Messages */}
+            {isUploading && (
+              <div className="flex items-center gap-2 text-sm text-[var(--color-accent)]">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Uploading...</span>
+              </div>
+            )}
+
+            {uploadError && (
+              <div className="space-y-2">
+                <div className="text-sm text-red-400 bg-red-400/10 p-2 rounded border border-red-400/20">
+                  {uploadError}
                 </div>
-              )}
-
-              {/* Upload Status */}
-              {isUploading && (
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-                  <div>
-                    <p className="text-sm font-medium text-blue-800">
-                      Uploading image...
-                    </p>
-                    <p className="text-xs text-blue-600">
-                      Please wait while we process your image
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Success Status */}
-              {uploadedFilename && !isUploading && (
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-green-800">
-                      Image uploaded successfully!
-                    </p>
-                    <p className="text-xs text-green-600">
-                      Your cover image is ready for publishing
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Status */}
-              {uploadError && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200">
-                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-3 h-3 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-red-800">
-                        Upload failed
-                      </p>
-                      <p className="text-xs text-red-600">{uploadError}</p>
-                    </div>
-                  </div>
-
-                  {/* Show login button for authentication errors */}
-                  {(uploadError.includes("Authentication") ||
-                    uploadError.includes("Session") ||
-                    uploadError.includes("401")) && (
-                    <Button
-                      onClick={handleAuthError}
-                      variant="outline"
-                      className="w-full border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
-                    >
-                      🔐 Login Again
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
+                {(uploadError.includes("Authentication") ||
+                  uploadError.includes("Session") ||
+                  uploadError.includes("401")) && (
+                  <Button
+                    onClick={handleAuthError}
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs border-red-400/30 text-red-400 hover:bg-red-400/10"
+                  >
+                    Login Again
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-100">
+        <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
           <Button
             variant="outline"
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting || isUploading}
-            className="px-8 py-3 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 hover:scale-[0.98] active:scale-95 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 "
           >
             Cancel
           </Button>
           <Button
             onClick={handlePublish}
             disabled={!uploadedFilename || isSubmitting || isUploading}
-            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white transition-all duration-200 
-              hover:from-blue-700 hover:to-blue-800 hover:scale-[0.98] active:scale-95 
-              disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:from-gray-400 disabled:to-gray-500
-              shadow-lg hover:shadow-xl rounded-xl font-medium relative overflow-hidden group"
+            className="flex-1 bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] rounded-[var(--radius-sm)] disabled:opacity-50 disabled:bg-[var(--color-light-span)]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-blue-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-            <div className="relative flex items-center">
-              {(isSubmitting || isUploading) && (
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              )}
-              {isUploading
-                ? "Uploading..."
-                : isSubmitting
-                  ? "Publishing..."
-                  : "🚀 Publish Article"}
-            </div>
+            {(isSubmitting || isUploading) && (
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+            )}
+            {isUploading
+              ? "Uploading..."
+              : isSubmitting
+                ? "Publishing..."
+                : "Publish"}
           </Button>
         </div>
       </DialogContent>

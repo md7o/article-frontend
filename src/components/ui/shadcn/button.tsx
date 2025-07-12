@@ -11,7 +11,7 @@ const buttonVariants = cva(
         default: "bg-white text-black shadow-xs hover:bg-white/60",
 
         dark: "bg-surface-elevated text-white shadow-xs hover:bg-surface-elevated/40",
-        outline: "border hover:bg-accent hover:text-black ",
+        outline: "border border-white text-white hover:bg-accent  ",
         emerald: "bg-accent text-black shadow-xs hover:bg-accent/60",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",

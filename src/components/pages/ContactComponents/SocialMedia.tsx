@@ -36,7 +36,7 @@ const socialMediaItems: SocialMediaItem[] = [
     icon: Github,
     description:
       "Check out my open-source projects and contributions on GitHub. Let's collaborate and build something amazing together.",
-    link: "https://github.com/mohammedalheraki",
+    link: "https://github.com/md7o",
     linkText: "View GitHub Profile",
     iconBgColor: "bg-gray-100",
     iconColor: "text-gray-800",

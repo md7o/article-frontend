@@ -1,15 +1,13 @@
 "use client";
 
-// Work on Admin Role ===================================================
-
-import { useState, useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useContext, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useArticles } from "@/context/ArticlesContext";
 import { AuthContext } from "@/context/AuthContext";
 import { useSearch } from "@/hooks/useSearch";
 import Cards from "@/components/pages/ArticleComponents/Cards";
 import SearchField from "@/components/ui/custom/SearchField";
-import Link from "next/link";
+import LoadingSpinner from "@/components/ui/custom/LoadingSpinner";
 import { getImageUrl } from "@/api/uploadImage";
 
 type ArticleContent = {
@@ -28,6 +26,9 @@ type Article = {
 export default function ArticlesCards() {
   const { user } = useContext(AuthContext);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchFieldRef = useRef<HTMLInputElement>(null);
+
   const { loading, error, deleteArticle, updateArticle } = useArticles() as {
     loading: boolean;
     error: string | null;
@@ -48,6 +49,28 @@ export default function ArticlesCards() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
+  const [navigatingToSlug, setNavigatingToSlug] = useState<string | null>(null);
+
+  // Handle article navigation with loading
+  const handleArticleNavigation = (slug: string) => {
+    setNavigatingToSlug(slug);
+
+    // Add a small delay to ensure the spinner is visible
+    setTimeout(() => {
+      router.push(`/articles/${slug}`);
+    }, 150);
+  };
+
+  // Auto-focus search field when coming from home page search button
+  useEffect(() => {
+    const shouldFocus = searchParams.get("focus");
+    if (shouldFocus === "search" && searchFieldRef.current) {
+      // Small delay to ensure the component is fully rendered
+      setTimeout(() => {
+        searchFieldRef.current?.focus();
+      }, 100);
+    }
+  }, [searchParams]);
 
   if (loading)
     return (
@@ -58,10 +81,23 @@ export default function ArticlesCards() {
   if (error) return <p className="text-red-600">Error: {error}</p>;
 
   return (
-    <div className="max-w-screen-2xl mx-auto px-4 py-8">
+    <div className="max-w-screen-2xl mx-auto px-4 py-8 relative">
+      {/* Navigation Loading Overlay */}
+      {navigatingToSlug && (
+        <div className="fixed inset-0 z-[9999] bg-black/30 backdrop-blur-md flex items-center justify-center">
+          <div className="flex flex-col items-center gap-6">
+            <LoadingSpinner size="lg" />
+            <p className="text-2xl text-white font-medium">
+              Loading article...
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Search Field */}
       <div className="mb-8">
         <SearchField
+          ref={searchFieldRef}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onClear={clearSearch}
@@ -132,7 +168,9 @@ export default function ArticlesCards() {
                       user ? () => deleteArticle(article.id) : undefined
                     }
                     showActions={!!user}
-                    articleSlug={article.slug} // Pass the slug for internal link handling
+                    articleSlug={article.slug}
+                    onArticleClick={() => handleArticleNavigation(article.slug)}
+                    isNavigating={navigatingToSlug === article.slug}
                   />
                 )}
               </div>

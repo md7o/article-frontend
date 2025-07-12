@@ -1,6 +1,6 @@
 @theme {
   /* Base Colors */
-  --color-base: #171717; /* Background base */
+  --color-base-bg: #171717; /* Background base */
   --color-surface-alt: #121212; /* container */
   --color-surface-elevated: #2f2f2f; /* Buttons / cards */
   --color-code-bg: #0d1117; /* Code block background */
@@ -38,5 +38,5 @@
 body {
   font-family: var(--font-IBMPlexSansArabic);
   color: #ffffff;
-  background: var(--color-base);
+  background: var(--color-base-bg);
 }

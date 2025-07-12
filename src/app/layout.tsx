@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${IBMPlexSansArabic.variable}`}>
+      <body className={`${IBMPlexSansArabic.variable} ${IBMPlexMono.variable}`}>
         <Providers>
           <ConditionalHeader />
           {children}

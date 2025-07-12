@@ -1,25 +1,35 @@
 "use client";
 
-import TitleField from "./WriteUi/TitleField";
+import TitleField, { TitleAlignEnum } from "./WriteUi/TitleField";
 import axios from "axios";
 import Link from "next/link";
-import { CircleUserRound, Goal, Hexagon } from "lucide-react";
-import { AuthContext } from "@/context/AuthContext";
+import { ArrowLeft, Goal, Home } from "lucide-react";
 import { useArticles } from "@/context/ArticlesContext";
-import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import { useContext, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ContentTestField from "./WriteUi/ContentTestField";
 import PublishDialog from "./WriteUi/PublishDialog";
 import { JSONContent } from "@tiptap/react";
 
 export default function EssayField() {
-  const { user, loading } = useContext(AuthContext);
   const { refreshArticles } = useArticles();
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
 
+  // Auth check
+  const { user, loading } = useContext(AuthContext);
+  useEffect(() => {
+    if (!loading && (!user || user.role !== "Admin")) {
+      router.replace("/");
+    }
+  }, [user, loading, router]);
+
   const [title, setTitle] = useState("");
+  const [titleAlign, setTitleAlign] = useState<TitleAlignEnum>(
+    TitleAlignEnum.LEFT_ALIGN
+  );
   const [editorContent, setEditorContent] = useState<JSONContent>({
     type: "doc",
     content: [{ type: "paragraph" }],
@@ -29,6 +39,10 @@ export default function EssayField() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [originalCoverImage, setOriginalCoverImage] = useState<string>("");
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
+
+  const handleBack = () => {
+    router.back();
+  };
 
   // Load article data when in edit mode
   useEffect(() => {
@@ -42,6 +56,15 @@ export default function EssayField() {
           );
           const article = response.data;
           setTitle(article.title);
+
+          // Set title alignment from article data
+          if (article.titleAlign) {
+            setTitleAlign(
+              article.titleAlign === "RIGHT_ALIGN"
+                ? TitleAlignEnum.RIGHT_ALIGN
+                : TitleAlignEnum.LEFT_ALIGN
+            );
+          }
 
           // Ensure content is in proper TipTap JSON format
           let content;
@@ -98,6 +121,7 @@ export default function EssayField() {
           `${process.env.NEXT_PUBLIC_API_URL}/articles/${editId}`,
           {
             title,
+            titleAlign,
             content: editorContent,
             coverImage: imageFilename,
           },
@@ -111,6 +135,7 @@ export default function EssayField() {
           process.env.NEXT_PUBLIC_API_URL + "/articles",
           {
             title,
+            titleAlign,
             content: editorContent,
             coverImage: imageFilename,
           },
@@ -124,6 +149,7 @@ export default function EssayField() {
 
       // Clear the form
       setTitle("");
+      setTitleAlign(TitleAlignEnum.LEFT_ALIGN);
       setEditorContent({
         type: "doc",
         content: [{ type: "paragraph" }],
@@ -154,15 +180,24 @@ export default function EssayField() {
   return (
     <>
       <header className="w-full my-5 flex justify-around items-center bg-primary rounded-fully p-2 mx-auto">
-        <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1">
-            <Link href={"/"}>
-              <Hexagon
-                size={50}
-                className="hover:text-light-span hover:scale-95 duration-300 "
-              />
-            </Link>
-          </div>
+        <div className="flex items-center gap-2">
+          {/* Back Button */}
+          <button
+            onClick={handleBack}
+            className="flex items-center justify-center cursor-pointer bg-surface-alt hover:opacity-60 hover:-translate-y-1 rounded-sm px-4 py-2 transition-all duration-300"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            <span>Back</span>
+          </button>
+
+          {/* Home Button */}
+          <Link
+            href="/"
+            className="flex items-center justify-center bg-surface-alt  hover:opacity-60 hover:-translate-y-1 rounded-sm px-4 py-2 transition-all duration-300"
+          >
+            <Home className="w-5 h-5 mr-2" />
+            <span>Home</span>
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-2">
@@ -189,6 +224,8 @@ export default function EssayField() {
         label="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        titleAlign={titleAlign}
+        onTitleAlignChange={setTitleAlign}
       />
       {/* Only render the editor when not loading article data */}
       {(!editId || !isLoadingArticle) && (

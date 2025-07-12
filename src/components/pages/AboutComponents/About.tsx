@@ -1,39 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { gsap } from "gsap";
-import { useEffect, useRef, useState } from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowUp, ArrowDown, ArrowLeft, Compass, Target } from "lucide-react";
+import Image from "next/image";
 
 const sections = [
   {
     id: 1,
     title: "About Me",
-    subtitle: "Developer & Designer",
+    subtitle: "Developer",
     description:
-      "Hi, I'm Mohammed Alheraki, a passionate developer with expertise in web and mobile development. I specialize in creating beautiful, functional applications using modern technologies like React, Next.js, and Flutter.",
-    image: "/assets/images/profile1.jpg",
+      "Hi, I’m Mohammed — a passionate web developer who enjoys building clean, fast, and modern websites. I specialize in creating responsive interfaces and scalable backends using tools like React, Next.js, TypeScript, and NestJS.",
+    image: "/assets/images/profile.jpg",
   },
   {
     id: 2,
     title: "My Journey",
     subtitle: "The Road So Far",
     description:
-      "My journey in software development started with a deep curiosity for creating digital experiences. Over the years, I've worked on various projects that have shaped my understanding of what makes great software.",
-    image: "/assets/images/profile2.jpg",
+      "My journey in software development began with a strong curiosity for building digital experiences. Over time, I’ve worked on diverse projects that sharpened my understanding of what makes software intuitive, reliable, and impactful.",
+    image: <Compass />,
   },
   {
     id: 3,
     title: "Vision & Goals",
     subtitle: "Looking Forward",
     description:
-      "I'm passionate about building applications that make a difference. My goal is to continue pushing the boundaries of what's possible in web and mobile development, while maintaining a focus on user experience and performance.",
-    image: "/assets/images/profile3.jpg",
+      "I believe in continuous learning and growth. My goal is to contribute to projects that not only challenge me but also have a positive impact on users. I’m excited about the future of web technologies and aim to be at the forefront of innovation.",
+    image: <Target />,
   },
 ];
 
-export default function About() {
+interface AboutProps {
+  useIcon?: boolean; // Boolean to toggle between image and icon
+}
+
+export default function About({ useIcon = false }: AboutProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -145,7 +149,7 @@ export default function About() {
     <div className="relative w-full h-screen overflow-hidden">
       {/* Back To Home Button */}
       <Link href={"/"}>
-        <div className="absolute left-4 md:left-8 top-4 md:top-8 cursor-pointer z-20 bg-white/10 backdrop-blur-sm rounded-full w-10 h-10 flex justify-center items-center hover:bg-white/20 transition-colors">
+        <div className="absolute left-4 md:left-8 top-4 md:top-8 cursor-pointer z-20 bg-white/10 backdrop-blur-sm rounded-sm w-10 h-10 flex justify-center items-center hover:bg-white/20 transition-colors">
           <ArrowLeft className="w-6 h-6 text-white" />
         </div>
       </Link>
@@ -212,12 +216,22 @@ export default function About() {
 
                 {/* Profile Image */}
                 <div className="profile-image relative w-48 h-48 md:w-64 md:h-64 mx-auto rounded-full overflow-hidden shadow-2xl">
-                  <img
-                    src={section.image}
-                    alt={section.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                  {useIcon || typeof section.image !== "string" ? (
+                    <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                      <div className="text-accent scale-[7]">
+                        {section.image}
+                      </div>
+                    </div>
+                  ) : (
+                    <Image
+                      src={section.image}
+                      alt={section.title}
+                      width={800}
+                      height={800}
+                      priority
+                      className="object-cover"
+                    />
+                  )}
                 </div>
 
                 {/* Description */}

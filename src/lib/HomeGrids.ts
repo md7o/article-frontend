@@ -5,7 +5,6 @@ export interface IGridItem {
   id: string;
   title?: string;
   size: GridSize;
-  image: string;
   description?: string;
   link?: string;
   background: string;
@@ -20,9 +19,8 @@ export const homeGrids: IGridItem[] = [
     title: "Blog",
     description: "Articles, guides, and dev insights.",
     link: "/articles",
-    image: "/assets/images/bg.jpg",
     size: "huge",
-    background: "bg-[#0f0f0f]",
+    background: "bg-gradient-to-br from-cyan-900 via-cyan-700 to-cyan-800",
     textColor: "text-white",
     buttonText: "Read More",
     tag: "#Blog",
@@ -33,10 +31,9 @@ export const homeGrids: IGridItem[] = [
     title: "About",
     description: "Who I am and what I do.",
     link: "/about",
-    image: "/assets/images/bg.jpg",
     size: "large",
-    background: "bg-[#DCAFFEFF]",
-    textColor: "text-black",
+    background: "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-500",
+    textColor: "text-white",
     buttonText: "Learn More",
     tag: "#About",
   },
@@ -45,10 +42,9 @@ export const homeGrids: IGridItem[] = [
     title: "Live Projects",
     description: "Projects live on the web.",
     link: "live-projects",
-    image: "/assets/images/bg.jpg",
-    size: "long",
-    background: "bg-[#C9FFE8FF]",
-    textColor: "text-black",
+    size: "small",
+    background: "bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900",
+    textColor: "text-white",
     buttonText: "View Live",
     tag: "#Live",
   },
@@ -57,11 +53,21 @@ export const homeGrids: IGridItem[] = [
     title: "Contact",
     description: "Get in touch with me.",
     link: "/contact",
-    image: "/assets/images/bg.jpg",
     size: "small",
-    background: "bg-[#FFE4B5FF]",
-    textColor: "text-black",
+    background: "bg-gradient-to-br from-pink-900 via-pink-700 to-pink-900",
+    textColor: "text-white",
     buttonText: "Contact Me",
     tag: "#Contact",
+  },
+  {
+    id: "Education-Experience",
+    title: "Education & Experience",
+    description: "My educational and work experience.",
+    link: "/education-experiences",
+    size: "small",
+    background: "bg-gradient-to-br from-gray-900 via-slate-800 to-zinc-900",
+    textColor: "text-white",
+    buttonText: "View Details",
+    tag: "#Career",
   },
 ];

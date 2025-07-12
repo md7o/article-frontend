@@ -35,7 +35,7 @@ const CardContent: React.FC<{
 }) => (
   <>
     {/* Image Container */}
-    <div className="relative aspect-video overflow-hidden m-5 hover:scale-[102%] duration-300">
+    <div className=" relative aspect-video overflow-hidden m-5 group-hover:scale-[102%] duration-300">
       {!imageError ? (
         <>
           {isLoading && (
@@ -92,6 +92,8 @@ interface ArticleCardProps {
   onDelete?: () => void;
   showActions?: boolean;
   articleSlug?: string;
+  onArticleClick?: () => void;
+  isNavigating?: boolean;
 }
 
 const ArticleCard: React.FC<ArticleCardProps> = ({
@@ -103,6 +105,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   onDelete,
   showActions = true,
   articleSlug,
+  onArticleClick,
+  isNavigating = false,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,15 +119,26 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     }
   };
 
+  const handleArticleClick = (e: React.MouseEvent) => {
+    if (articleSlug && onArticleClick) {
+      e.preventDefault();
+      onArticleClick();
+    }
+  };
+
   return (
-    <div className="group bg-surface-alt rounded-sm overflow-hidden flex flex-col hover:ring-1 hover:ring-accent transition-all duration-300 relative">
+    <div
+      className={`group bg-surface-alt rounded-sm overflow-hidden flex flex-col hover:ring-1 hover:ring-accent transition-all duration-300 relative ${
+        isNavigating ? "pointer-events-none opacity-75" : ""
+      }`}
+    >
       {/* Action Buttons - Positioned absolutely to be outside Link */}
       {showActions && (onEdit || onDelete) && (
-        <div className="absolute top-7 right-7 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-10">
+        <div className="absolute top-7 right-7 flex gap-2 z-10">
           {onEdit && (
             <Button
               size={"icon"}
-              variant="transparency"
+              variant="dark"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -141,7 +156,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           {onDelete && (
             <Button
               size={"icon"}
-              variant="transparency"
+              variant="dark"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -156,11 +171,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         </div>
       )}
 
-      {/* Main Content - Conditionally wrapped with Link */}
+      {/* Main Content - Clickable div with navigation loading */}
       {articleSlug ? (
-        <Link
-          href={`/articles/${articleSlug}`}
-          className="flex flex-col flex-1"
+        <div
+          onClick={handleArticleClick}
+          className="flex flex-col flex-1 cursor-pointer"
         >
           <CardContent
             imageUrl={imageUrl}
@@ -172,7 +187,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             setImageError={setImageError}
             setIsLoading={setIsLoading}
           />
-        </Link>
+        </div>
       ) : (
         <CardContent
           imageUrl={imageUrl}

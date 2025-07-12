@@ -9,11 +9,18 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-export type User = { email: string; username: string; id?: string };
+export type User = {
+  email: string;
+  username: string;
+  id?: string;
+  role?: string;
+};
 export interface SignupData {
   username: string;
   email: string;
   password: string;
+  adminSecret: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -70,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: data.email,
           username: data.username,
           id: data.id,
+          role: data.role,
         });
       } else {
         setUser(null);
@@ -117,7 +125,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           credentials: "include",
         });
 
-        if (!res.ok) throw new Error("Signup failed");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          const errorMessage = errorData.message || "Signup failed";
+          throw new Error(errorMessage);
+        }
 
         const { user } = await res.json();
         setUser(user);
@@ -134,7 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API_URL}/admin/logout`, {
+      await fetch(`${API_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -142,7 +154,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout error:", error);
     } finally {
       setUser(null);
-      router.push("/login");
     }
   }, [router]);
 
