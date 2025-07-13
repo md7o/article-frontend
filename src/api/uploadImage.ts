@@ -29,10 +29,6 @@ const uploadImage = async (file: File) => {
     // Upload endpoint
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-    // Debug: Check if cookies are being sent
-    console.log("Making request to:", `${baseUrl}/articles/upload`);
-    console.log("Request credentials:", "include");
-
     const response = await fetch(`${baseUrl}/articles/upload`, {
       method: "POST",
       body: formData,
@@ -65,13 +61,13 @@ const uploadImage = async (file: File) => {
     const data = await response.json();
     console.log("Upload successful:", data);
 
-    // Check for filename in the response
-    if (!data.filename) {
-      console.error("Server response missing filename:", data);
-      throw new Error("Server response missing filename");
+    // Check for URL in the response (Cloudinary URL)
+    if (!data.url) {
+      console.error("Server response missing URL:", data);
+      throw new Error("Server response missing URL");
     }
 
-    return data.filename;
+    return data.url;
   } catch (error) {
     console.error("Image upload error:", error);
     throw error;
@@ -124,11 +120,16 @@ const debugCookies = () => {
   );
 };
 
-export const getImageUrl = (filename: string) => {
-  if (!filename) return "/assets/images/bg.jpg";
-  // Make sure the filename doesn't include the full URL
-  const cleanFilename = filename.split("/").pop() || filename;
-  // Use the articles/images endpoint for retrieving images to match backend
+export const getImageUrl = (imageUrl: string) => {
+  if (!imageUrl) return "/assets/images/bg.jpg";
+
+  // If it's already a full URL (Cloudinary), return it directly
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl;
+  }
+
+  // Fallback for local files (if needed)
+  const cleanFilename = imageUrl.split("/").pop() || imageUrl;
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   return `${baseUrl}/articles/images/${cleanFilename}`;
 };

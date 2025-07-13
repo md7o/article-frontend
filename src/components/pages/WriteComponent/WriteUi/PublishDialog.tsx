@@ -10,10 +10,11 @@ import {
 import { Input } from "@/components/ui/shadcn/input";
 import { Button } from "@/components/ui/shadcn/button";
 import { Loader2 } from "lucide-react";
-import uploadImage from "@/api/uploadImage";
+import uploadImage, { getImageUrl } from "@/api/uploadImage";
 import { useRouter } from "next/navigation";
 import { JSONContent } from "@tiptap/react";
 import { AuthContext } from "@/context/AuthContext";
+import Image from "next/image";
 
 interface PublishDialogProps {
   open: boolean;
@@ -47,10 +48,8 @@ export default function PublishDialog({
   useEffect(() => {
     if (existingCoverImage) {
       setUploadedFilename(existingCoverImage);
-      // Set preview to the full URL for existing images
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-      setImagePreview(`${baseUrl}/articles/images/${existingCoverImage}`);
+      // Use the getImageUrl helper to properly handle both Cloudinary URLs and filenames
+      setImagePreview(getImageUrl(existingCoverImage));
     } else {
       // Reset state when creating new article
       setUploadedFilename(null);
@@ -282,11 +281,13 @@ export default function PublishDialog({
               /* Image Preview with Replace Option */
               <div className="relative bg-[var(--color-surface-elevated)] p-3 rounded-[var(--radius-sm)] border border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-16 h-16 rounded-sm overflow-hidden border border-white/10">
-                    <img
+                  <div className="w-16 h-16 rounded-sm overflow-hidden border border-white/10 relative">
+                    <Image
                       src={imagePreview}
                       alt="Preview"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="64px"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
