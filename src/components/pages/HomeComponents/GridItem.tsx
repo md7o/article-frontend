@@ -27,7 +27,7 @@ export default function GridItem({ item }: GridItemProps) {
         setTimeout(() => {
           window.location.href = item.link!;
         }, 100);
-
+      } else {
         window.location.href = item.link!;
       }
     }
