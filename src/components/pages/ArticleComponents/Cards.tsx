@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Edit2, Trash2, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   Dialog,
@@ -207,7 +206,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           <DialogHeader>
             <DialogTitle>Delete Article</DialogTitle>
             <DialogDescription className="pt-2">
-              Are you sure you want to delete "{title}"? This action cannot be
+              Are you sure you want to delete -{title}-? This action cannot be
               undone.
             </DialogDescription>
           </DialogHeader>
@@ -215,14 +214,14 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             <Button
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
-              className="flex-1"
+              className="flex-1 hover:bg-white hover:text-black"
             >
               Cancel
             </Button>
             <Button
               variant="default"
               onClick={handleDeleteConfirm}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              className="flex-1 bg-red-400 hover:bg-red-500 text-white"
             >
               Delete
             </Button>

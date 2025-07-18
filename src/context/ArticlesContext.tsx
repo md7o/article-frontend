@@ -7,6 +7,7 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from "react";
 
 export interface Article {
@@ -40,10 +41,10 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/articles`;
+  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "https://article-backend.fly.dev"}/articles`;
 
   // GET
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(API_BASE);
@@ -57,7 +58,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE]);
 
   // DELETE
   const deleteArticle = async (id: string) => {
@@ -99,7 +100,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
   // Initial load
   useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [fetchArticles]);
   const refreshArticles = async () => {
     await fetchArticles();
   };

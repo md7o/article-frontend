@@ -2,6 +2,21 @@
 
 import { useMemo } from "react";
 
+// Interface for searchable article
+interface SearchableArticle {
+  id: string;
+  title?: string;
+  content?: unknown;
+  slug: string;
+  createdAt: string;
+  coverImage?: string;
+}
+
+// Interface for article with search score
+interface ScoredArticle extends SearchableArticle {
+  _searchScore: number;
+}
+
 // Search performance utilities
 export function useSearchPerformance() {
   // Memoized search term processing
@@ -22,7 +37,10 @@ export function useSearchPerformance() {
   }, []);
 
   // Scoring algorithm for search relevance
-  const calculateRelevanceScore = (article: any, searchTerms: string[]) => {
+  const calculateRelevanceScore = (
+    article: SearchableArticle,
+    searchTerms: string[]
+  ) => {
     if (searchTerms.length === 0) return 0;
 
     let score = 0;
@@ -45,10 +63,8 @@ export function useSearchPerformance() {
 
       // Content matches
       if (content.includes(term)) {
-        const contentLength = content.length;
-        const termLength = term.length;
         const density =
-          (content.match(new RegExp(term, "g")) || []).length / contentLength;
+          (content.match(new RegExp(term, "g")) || []).length / content.length;
         score += Math.min(density * 1000, 10); // Cap content score
       }
 
@@ -64,16 +80,22 @@ export function useSearchPerformance() {
   };
 
   // Advanced search with fuzzy matching
-  const fuzzySearch = (articles: any[], query: string, threshold = 0.6) => {
+  const fuzzySearch = (
+    articles: SearchableArticle[],
+    query: string
+  ): ScoredArticle[] => {
     const searchTerms = processSearchTerms(query);
 
-    if (searchTerms.length === 0) return articles;
+    if (searchTerms.length === 0)
+      return articles.map((article) => ({ ...article, _searchScore: 0 }));
 
     const results = articles
-      .map((article) => ({
-        ...article,
-        _searchScore: calculateRelevanceScore(article, searchTerms),
-      }))
+      .map(
+        (article): ScoredArticle => ({
+          ...article,
+          _searchScore: calculateRelevanceScore(article, searchTerms),
+        })
+      )
       .filter((article) => article._searchScore > 0);
 
     // Sort by relevance score
@@ -145,7 +167,10 @@ export function useSearchMetrics() {
     return metrics;
   };
 
-  const getSearchSuggestions = (query: string, allArticles: any[]) => {
+  const getSearchSuggestions = (
+    query: string,
+    allArticles: SearchableArticle[]
+  ) => {
     if (query.length < 2) return [];
 
     // Extract unique words from all article titles and content
@@ -158,14 +183,14 @@ export function useSearchMetrics() {
           ? article.content.toLowerCase()
           : "";
 
-      title.split(/\s+/).forEach((word) => {
+      title.split(/\s+/).forEach((word: string) => {
         if (word.length > 2) allWords.add(word);
       });
 
       content
         .split(/\s+/)
         .slice(0, 100)
-        .forEach((word) => {
+        .forEach((word: string) => {
           // Limit content words
           if (word.length > 3) allWords.add(word);
         });

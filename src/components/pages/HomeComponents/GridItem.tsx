@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import type { IGridItem } from "@/lib/HomeGrids";
-import { ArrowUpRight, ArrowDown, Linkedin, Github, Mail } from "lucide-react";
-import { usePageLoading } from "./HomeClient";
+import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import LoadingSpinner from "@/components/ui/custom/LoadingSpinner";
 
 interface GridItemProps {
   item: IGridItem;
 }
 
 export default function GridItem({ item }: GridItemProps) {
-  const { isLoading: pageLoading, handleGridItemClick } = usePageLoading();
+  const [loading, setLoading] = useState(false);
   const sizeClasses = {
     huge: "col-span-2 row-span-1 h-[530px]",
     large: "col-span-2 row-span-1 h-[260px]",
@@ -21,15 +22,32 @@ export default function GridItem({ item }: GridItemProps) {
   const handleClick = (e: React.MouseEvent) => {
     if (item.link) {
       e.preventDefault();
-      handleGridItemClick(item.link);
+      if (item.id === "blogs") {
+        setLoading(true);
+        setTimeout(() => {
+          window.location.href = item.link!;
+        }, 100);
+
+        window.location.href = item.link!;
+      }
     }
   };
 
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center">
+        <div className="flex flex-col items-center gap-8 ">
+          <div className="relative">
+            <LoadingSpinner size="lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl group cursor-pointer shadow-lg hover:shadow-xl border border-white/10 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.01] ${sizeClasses[item.size]} ${item.id === "all-projects" ? "md:row-start-1 md:col-start-3" : ""} ${
-        item.id === "profile" ? "md:row-start-2 md:col-start-3" : ""
-      } ${pageLoading ? "pointer-events-none opacity-60 scale-95" : ""}`}
+      className={`relative overflow-hidden rounded-2xl group cursor-pointer shadow-lg hover:shadow-xl border border-white/10 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.01] ${sizeClasses[item.size]} ${item.id === "all-projects" ? "md:row-start-1 md:col-start-3" : ""} ${item.id === "profile" ? "md:row-start-2 md:col-start-3" : ""}`}
     >
       {item.link && (
         <Link

@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { gsap } from "gsap";
 import { useRef, useState } from "react";
-import { ArrowUp, ArrowDown, ArrowLeft, Compass, Target } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  Compass,
+  Target,
+  FileText,
+} from "lucide-react";
 import Image from "next/image";
 
 const sections = [
@@ -39,7 +46,6 @@ interface AboutProps {
 
 export default function About({ useIcon = false }: AboutProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const contentRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const setSectionRef = (el: HTMLDivElement | null, index: number) => {
@@ -147,12 +153,22 @@ export default function About({ useIcon = false }: AboutProps) {
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
-      {/* Back To Home Button */}
-      <Link href={"/"}>
-        <div className="absolute left-4 md:left-8 top-4 md:top-8 cursor-pointer z-20 bg-white/10 backdrop-blur-sm rounded-sm w-10 h-10 flex justify-center items-center hover:bg-white/20 transition-colors">
-          <ArrowLeft className="w-6 h-6 text-white" />
-        </div>
-      </Link>
+      <div>
+        {/* Back To Home Button */}
+        <Link href={"/"}>
+          <div className="absolute left-4 md:left-8 top-4 md:top-8 cursor-pointer z-20 bg-white/10 backdrop-blur-sm rounded-sm w-10 h-10 flex justify-center items-center hover:bg-white/20 transition-colors">
+            <ArrowLeft className="w-6 h-6 text-white" />
+          </div>
+        </Link>
+
+        {/* Cv Button */}
+        <Link href={"/cv"}>
+          <div className="absolute right-4 md:right-8 top-4 md:top-8 cursor-pointer z-20 bg-white/10 backdrop-blur-sm rounded-sm p-2 flex justify-center items-center hover:bg-white/20 transition-colors">
+            <FileText className="w-6 h-6 text-white" />
+            <span className="ml-2">CV Preview</span>
+          </div>
+        </Link>
+      </div>
 
       {/* Background with Overlay */}
       <div className="absolute inset-0 z-0">

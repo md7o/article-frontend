@@ -35,6 +35,20 @@
   --sidebar-primary: 240 5.9% 10%;
 }
 
+/* Banner stripe loading animation */
+@keyframes stripe-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-stripe-slide {
+  animation: stripe-slide 1.2s linear infinite;
+}
+
 body {
   font-family: var(--font-IBMPlexSansArabic);
   color: #ffffff;

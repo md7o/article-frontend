@@ -35,7 +35,8 @@
 
 /* Code block styles */
 .ProseMirror pre {
-  background-color: #1a1e2b;
+  background-color: #21242e;
+  font-size: 15px;
   color: white;
   padding: 1rem;
   border-radius: 0.5rem;

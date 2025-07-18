@@ -310,7 +310,7 @@ export default function TextEditor({ onChange, initialContent }: Props) {
       </div>
 
       {/* Editor */}
-      <div className="min-h-[500px] text-2xl">
+      <div className="min-h-[500px] text-base">
         <EditorContent editor={editor} />
       </div>
     </div>

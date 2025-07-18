@@ -27,8 +27,9 @@ export default function SignupCard() {
     try {
       setServerError("");
       await signup(data);
-    } catch (error: any) {
-      const errorMessage = error.message || "An error occurred during signup";
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as Error).message || "An error occurred during signup";
 
       // If it's an admin secret error, show it as a field error
       if (

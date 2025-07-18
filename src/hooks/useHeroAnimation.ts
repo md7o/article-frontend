@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 export const useHeroAnimation = () => {
   const [currentRole, setCurrentRole] = useState(0);
@@ -6,18 +6,21 @@ export const useHeroAnimation = () => {
   const [typingText, setTypingText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
 
-  const roles = [
-    "Full Stack Developer",
-    "UI/UX Designer", 
-    "Problem Solver",
-    "Tech Enthusiast",
-  ];
+  const roles = useMemo(
+    () => [
+      "Full Stack Developer",
+      "UI/UX Designer",
+      "Problem Solver",
+      "Tech Enthusiast",
+    ],
+    []
+  );
 
   // Typewriter effect
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     const currentRoleText = roles[currentRole];
-    
+
     if (isTyping) {
       if (typingText.length < currentRoleText.length) {
         timeout = setTimeout(() => {

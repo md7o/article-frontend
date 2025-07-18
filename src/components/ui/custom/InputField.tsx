@@ -5,11 +5,10 @@ import { cn } from "@/lib/utils";
 
 interface InputProps extends React.ComponentProps<"input"> {
   icon?: React.ReactNode;
-  validationType?: "email" | "mobile" | "password" | "text";
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, icon, validationType, ...props }, ref) => {
+  ({ className, type, icon, ...props }, ref) => {
     return (
       <div className="relative">
         {icon && (

@@ -149,14 +149,14 @@ export default function EducationExperience() {
                       <li className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-light-span leading-relaxed">
-                          Built and launched Shafrah's website using Next.js and
+                          Built and launched Shafrah website using Next.js and
                           Firebase.
                         </span>
                       </li>
                       <li className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-light-span leading-relaxed">
-                          Working on developing Shafrah's technical products.
+                          Working on developing Shafrah technical products.
                         </span>
                       </li>
                     </ul>

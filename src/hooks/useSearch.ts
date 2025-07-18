@@ -10,6 +10,22 @@ export interface SearchableArticle {
   createdAt: string;
 }
 
+// TipTap content structure interfaces
+interface TipTapTextNode {
+  text?: string;
+  type?: string;
+}
+
+interface TipTapContentBlock {
+  type?: string;
+  content?: TipTapTextNode[];
+  text?: string;
+}
+
+interface TipTapContent {
+  content?: TipTapContentBlock[];
+}
+
 export function useSearch() {
   const { articles } = useArticles();
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,13 +112,15 @@ function extractTextFromContent(content: unknown): string {
   }
 
   try {
-    const contentObj = content as any;
+    const contentObj = content as TipTapContent;
 
     if (contentObj.content && Array.isArray(contentObj.content)) {
       return contentObj.content
-        .map((block: any) => {
+        .map((block: TipTapContentBlock) => {
           if (block.content && Array.isArray(block.content)) {
-            return block.content.map((item: any) => item.text || "").join(" ");
+            return block.content
+              .map((item: TipTapTextNode) => item.text || "")
+              .join(" ");
           }
           return block.text || "";
         })

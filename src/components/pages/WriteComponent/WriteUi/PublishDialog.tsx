@@ -44,157 +44,22 @@ export default function PublishDialog({
   const router = useRouter();
   const { user, validateSession, logout } = useContext(AuthContext);
 
-  // Initialize with existing cover image when in edit mode
   useEffect(() => {
     if (existingCoverImage) {
       setUploadedFilename(existingCoverImage);
-      // Use the getImageUrl helper to properly handle both Cloudinary URLs and filenames
       setImagePreview(getImageUrl(existingCoverImage));
     } else {
-      // Reset state when creating new article
       setUploadedFilename(null);
       setImagePreview(null);
       setSelectedImage(null);
     }
   }, [existingCoverImage, open]);
 
-  const handleImageChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0] || null;
-      setUploadError(null);
-
-      if (file) {
-        // Validate file size (5MB limit)
-        const MAX_SIZE = 5 * 1024 * 1024;
-        if (file.size > MAX_SIZE) {
-          setUploadError("File size must be less than 5MB");
-          return;
-        }
-
-        // Validate file type
-        if (!file.type.startsWith("image/")) {
-          setUploadError("Please select an image file");
-          return;
-        }
-
-        console.log("Selected file:", file.name);
-        setSelectedImage(file);
-
-        // Create image preview with proper error handling
-        try {
-          const previewUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              if (e.target?.result) {
-                resolve(e.target.result as string);
-              } else {
-                reject(new Error("Failed to read file"));
-              }
-            };
-            reader.onerror = () => {
-              reject(new Error("Error reading file"));
-            };
-            reader.readAsDataURL(file);
-          });
-          setImagePreview(previewUrl);
-        } catch (previewError) {
-          console.error("Failed to create image preview:", previewError);
-          setUploadError("Failed to preview image");
-          return;
-        }
-
-        try {
-          setIsUploading(true);
-
-          // Check if user is authenticated
-          if (!user) {
-            throw new Error("You must be logged in to upload images");
-          }
-
-          // Validate session before upload to ensure fresh authentication
-          try {
-            await validateSession();
-          } catch (sessionError) {
-            console.error("Session validation failed:", sessionError);
-            throw new Error("Session expired. Please log in again.");
-          }
-
-          console.log("Starting upload...");
-          const filename = await uploadImage(file);
-          console.log("Upload successful, filename:", filename);
-          setUploadedFilename(filename);
-        } catch (error) {
-          console.error("Failed to upload image:", error);
-          console.log("Current user:", user);
-          console.log("Error details:", {
-            message: error instanceof Error ? error.message : "Unknown error",
-            type: error?.constructor?.name,
-            stack: error instanceof Error ? error.stack : undefined,
-          });
-
-          let errorMessage = "Failed to upload image. Please try again.";
-
-          if (error instanceof Error) {
-            if (
-              error.message.includes("401") ||
-              error.message.includes("Unauthorized")
-            ) {
-              errorMessage =
-                "Authentication failed. Please log out and log back in.";
-            } else if (error.message.includes("Session expired")) {
-              errorMessage = "Your session has expired. Please log in again.";
-            } else if (error.message.includes("413")) {
-              errorMessage = "File too large. Please select a smaller image.";
-            } else if (error.message.includes("403")) {
-              errorMessage =
-                "Permission denied. You don't have access to upload images.";
-            } else if (error.message.includes("500")) {
-              errorMessage = "Server error. Please try again later.";
-            } else {
-              errorMessage = error.message;
-            }
-          }
-
-          setUploadError(errorMessage);
-          setSelectedImage(null);
-          setImagePreview(null);
-        } finally {
-          setIsUploading(false);
-        }
-      } else {
-        setSelectedImage(null);
-        setImagePreview(null);
-        setUploadedFilename(null);
-      }
-    },
-    [user, validateSession]
-  );
-  const handlePublish = useCallback(async () => {
-    if (!uploadedFilename) {
-      setUploadError("Please upload a cover image first");
-      return;
-    }
-
-    try {
-      await onConfirm(uploadedFilename);
-      if (!isSubmitting && !isUploading) {
-        router.push("/articles");
-      }
-    } catch (error) {
-      console.error("Failed to publish article:", error);
-      setUploadError("Failed to publish article. Please try again.");
-    }
-  }, [uploadedFilename, onConfirm, router, isSubmitting, isUploading]);
-
   const resetDialog = useCallback(() => {
     setSelectedImage(null);
     setUploadError(null);
     setIsUploading(false);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
-    // Only reset image state if not in edit mode with existing cover image
+    if (fileInputRef.current) fileInputRef.current.value = "";
     if (!existingCoverImage) {
       setUploadedFilename(null);
       setImagePreview(null);
@@ -203,33 +68,127 @@ export default function PublishDialog({
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (!open && !existingCoverImage) {
-        resetDialog();
-      }
+      if (!open && !existingCoverImage) resetDialog();
       onOpenChange(open);
     },
     [onOpenChange, resetDialog, existingCoverImage]
   );
 
+  const handleImageChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0] || null;
+      setUploadError(null);
+      if (!file) {
+        setSelectedImage(null);
+        setImagePreview(null);
+        setUploadedFilename(null);
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError("File size must be less than 5MB");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        setUploadError("Please select an image file");
+        return;
+      }
+      setSelectedImage(file);
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => setImagePreview(e.target?.result as string);
+        reader.onerror = () => setUploadError("Failed to preview image");
+        reader.readAsDataURL(file);
+      } catch {
+        setUploadError("Failed to preview image");
+        return;
+      }
+    },
+    []
+  );
+
+  const handlePublish = useCallback(async () => {
+    if (!selectedImage && !uploadedFilename) {
+      setUploadError("Please upload a cover image first");
+      return;
+    }
+    let filename = uploadedFilename;
+    if (selectedImage && !uploadedFilename) {
+      setIsUploading(true);
+      try {
+        if (!user) throw new Error("You must be logged in to upload images");
+        await validateSession();
+        filename = await uploadImage(selectedImage);
+        setUploadedFilename(filename);
+      } catch (error: any) {
+        let msg = "Failed to upload image. Please try again.";
+        if (
+          error?.message?.includes("401") ||
+          error?.message?.includes("Unauthorized")
+        )
+          msg = "Authentication failed. Please log out and log back in.";
+        else if (error?.message?.includes("Session expired"))
+          msg = "Your session has expired. Please log in again.";
+        else if (error?.message?.includes("413"))
+          msg = "File too large. Please select a smaller image.";
+        else if (error?.message?.includes("403"))
+          msg = "Permission denied. You don't have access to upload images.";
+        else if (error?.message?.includes("500"))
+          msg = "Server error. Please try again later.";
+        else if (error?.message) msg = error.message;
+        setUploadError(msg);
+        setSelectedImage(null);
+        setImagePreview(null);
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+    try {
+      await onConfirm(filename!);
+      if (!isSubmitting && !isUploading) router.push("/articles");
+    } catch {
+      setUploadError("Failed to publish article. Please try again.");
+    }
+  }, [
+    selectedImage,
+    uploadedFilename,
+    onConfirm,
+    router,
+    isSubmitting,
+    isUploading,
+    user,
+    validateSession,
+  ]);
+
   const handleAuthError = useCallback(async () => {
     try {
       await logout();
-      router.push("/admin/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
+    } finally {
       router.push("/admin/login");
     }
   }, [logout, router]);
 
-  // Cleanup effect to handle component unmount
   useEffect(() => {
     return () => {
-      // Cleanup any pending operations
-      if (imagePreview && imagePreview.startsWith("blob:")) {
+      if (imagePreview && imagePreview.startsWith("blob:"))
         URL.revokeObjectURL(imagePreview);
-      }
     };
   }, [imagePreview]);
+
+  const renderImageInput = () => (
+    <Input
+      ref={fileInputRef}
+      type="file"
+      accept="image/*"
+      onChange={handleImageChange}
+      disabled={isUploading}
+      className={
+        imagePreview
+          ? "file:py-2 file:px-5 file:rounded-full file:border-0 file:text-xs file:bg-accent file:text-white hover:file:from-[var(--color-accent-hover)] hover:file:to-[var(--color-accent)] file:cursor-pointer file:transition-all file:duration-300 file:shadow-lg hover:file:shadow-xl file:hover:scale-105 file:transform file:uppercase file:tracking-wider border-0 p-0 bg-transparent text-transparent cursor-pointer group"
+          : "border-1 border-dotted file:text-white hover:bg-white/30 cursor-pointer text-white"
+      }
+    />
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -239,13 +198,11 @@ export default function PublishDialog({
             🚀 Publish Article
           </DialogTitle>
         </DialogHeader>
-
         <div className="space-y-4">
-          {/* Title Preview */}
           <div className="bg-surface-elevated p-3 rounded-sm border border-white/10 flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full "></div>
-              <span className="text-xs font-medium text-[var(--color-light-span)] uppercase tracking-wide ">
+              <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+              <span className="text-xs font-medium text-[var(--color-light-span)] uppercase tracking-wide">
                 Title
               </span>
             </div>
@@ -253,11 +210,9 @@ export default function PublishDialog({
               {title || "Untitled Article"}
             </p>
           </div>
-
-          {/* Content Preview */}
           <div className="bg-[var(--color-surface-elevated)] p-3 rounded-[var(--radius-sm)] border border-white/10">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full flex-shrink-0" />
               <span className="text-xs font-medium text-[var(--color-light-span)] uppercase tracking-wide">
                 Content
               </span>
@@ -267,8 +222,6 @@ export default function PublishDialog({
                 "No content available"}
             </p>
           </div>
-
-          {/* Cover Image Upload */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-white">
@@ -276,69 +229,69 @@ export default function PublishDialog({
               </span>
               <span className="text-xs text-red-400">Required</span>
             </div>
-
             {imagePreview ? (
-              /* Image Preview with Replace Option */
-              <div className="relative bg-[var(--color-surface-elevated)] p-3 rounded-[var(--radius-sm)] border border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-16 h-16 rounded-sm overflow-hidden border border-white/10 relative">
-                    <Image
-                      src={imagePreview}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                    />
+              <div className="relative bg-gradient-to-br from-[var(--color-surface-elevated)] to-[var(--color-surface-elevated)]/80 p-5 rounded-2xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-white/30 backdrop-blur-sm">
+                <div className="flex items-center gap-5">
+                  <div className="relative group">
+                    <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/20 relative shadow-2xl bg-gradient-to-br from-white/10 to-white/5 group-hover:border-[var(--color-accent)]/50 transition-all duration-300">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                        sizes="96px"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-full border-2 border-white/20 shadow-lg flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white font-medium truncate">
-                      {selectedImage?.name ||
-                        (existingCoverImage ? existingCoverImage : "Uploaded")}
-                    </p>
-                    {selectedImage && (
-                      <p className="text-xs text-[var(--color-light-span)]">
-                        {(selectedImage.size / 1024 / 1024).toFixed(1)} MB
-                      </p>
-                    )}
-                    <Input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      disabled={isUploading}
-                      className="mt-1 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-[var(--color-accent)] file:text-white hover:file:bg-[var(--color-accent-hover)] file:cursor-pointer border-0 p-0 bg-transparent text-transparent"
-                    />
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-[var(--color-accent)] rounded-full animate-pulse" />
+                        <p className="text-sm text-white font-bold truncate tracking-wide">
+                          {selectedImage?.name ||
+                            existingCoverImage ||
+                            "Cover Image"}
+                        </p>
+                      </div>
+                      {selectedImage && (
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs text-[var(--color-light-span)] bg-gradient-to-r from-white/10 to-white/5 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 border border-white/10 shadow-sm">
+                            <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse" />
+                            {(selectedImage.size / 1024).toFixed(1).length <= 4
+                              ? `${(selectedImage.size / 1024).toFixed(1)} KB`
+                              : `${(selectedImage.size / 1024 / 1024).toFixed(2)} MB`}
+                          </div>
+                          <div className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
+                            ✓ Uploaded
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="relative">
+                      {renderImageInput()}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--color-accent)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    </div>
                   </div>
-                  {uploadedFilename && (
-                    <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full"></div>
-                  )}
                 </div>
               </div>
             ) : (
-              /* Initial File Input */
               <div className="border border-white/10 bg-[var(--color-surface-elevated)] rounded-sm px-5 py-2">
-                <Input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  disabled={isUploading}
-                  className=" border-3 border-dotted file:text-white hover:bg-white/30 cursor-pointer  text-white "
-                />
+                {renderImageInput()}
                 <p className="text-xs text-[var(--color-light-span)] mt-2">
                   Max 5MB • JPG, PNG, GIF
                 </p>
               </div>
             )}
-
-            {/* Status Messages */}
             {isUploading && (
               <div className="flex items-center gap-2 text-sm text-[var(--color-accent)]">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Uploading...</span>
               </div>
             )}
-
             {uploadError && (
               <div className="space-y-2">
                 <div className="text-sm text-red-400 bg-red-400/10 p-2 rounded border border-red-400/20">
@@ -360,14 +313,13 @@ export default function PublishDialog({
             )}
           </div>
         </div>
-
         {/* Action Buttons */}
         <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
           <Button
             variant="outline"
             onClick={() => handleOpenChange(false)}
             disabled={isSubmitting || isUploading}
-            className="flex-1 "
+            className="flex-1"
           >
             Cancel
           </Button>
@@ -376,9 +328,11 @@ export default function PublishDialog({
             disabled={!uploadedFilename || isSubmitting || isUploading}
             className="flex-1 bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] rounded-[var(--radius-sm)] disabled:opacity-50 disabled:bg-[var(--color-light-span)]"
           >
+            {/* Show loading spinner if submitting or uploading */}
             {(isSubmitting || isUploading) && (
               <Loader2 className="mr-1 h-4 w-4 animate-spin" />
             )}
+            {/* Button text changes based on state */}
             {isUploading
               ? "Uploading..."
               : isSubmitting

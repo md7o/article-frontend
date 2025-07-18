@@ -9,7 +9,6 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  Import,
 } from "lucide-react";
 import Link from "next/link";
 import { liveProjectData } from "@/lib/LiveProjectData";

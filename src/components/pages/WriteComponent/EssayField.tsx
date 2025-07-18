@@ -7,16 +7,18 @@ import { ArrowLeft, Goal, Home } from "lucide-react";
 import { useArticles } from "@/context/ArticlesContext";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import ContentTestField from "./WriteUi/ContentTestField";
 import PublishDialog from "./WriteUi/PublishDialog";
 import { JSONContent } from "@tiptap/react";
 
-export default function EssayField() {
+interface EssayFieldProps {
+  editId?: string | null;
+}
+
+export default function EssayField({ editId }: EssayFieldProps) {
   const { refreshArticles } = useArticles();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const editId = searchParams.get("edit");
 
   // Auth check
   const { user, loading } = useContext(AuthContext);

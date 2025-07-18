@@ -48,45 +48,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Initialize auth state from cookie
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        await validateSession();
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    initializeAuth();
-  }, []);
-
   const validateSession = useCallback(async () => {
     try {
+      const token = localStorage.getItem("auth_token");
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
       const res = await fetch(`${API_URL}/auth/validateSession`, {
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
       });
-
       if (res.ok) {
         const data = await res.json();
-        setUser({
-          email: data.email,
-          username: data.username,
-          id: data.id,
-          role: data.role,
-        });
+        setUser(data);
+        localStorage.setItem("auth_user", JSON.stringify(data));
       } else {
-        setUser(null);
+        const storedUser = localStorage.getItem("auth_user");
+        storedUser ? setUser(JSON.parse(storedUser)) : setUser(null);
+        if (!storedUser) {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
       }
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-      setUser(null);
+    } catch {
+      const storedUser = localStorage.getItem("auth_user");
+      storedUser ? setUser(JSON.parse(storedUser)) : setUser(null);
+      if (!storedUser) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+      }
     }
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const storedUser = localStorage.getItem("auth_user");
+      if (storedUser) setUser(JSON.parse(storedUser));
+      await new Promise((r) => setTimeout(r, 100));
+      await validateSession();
+      setLoading(false);
+    })();
+  }, [validateSession]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -98,11 +99,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({ email, password }),
           credentials: "include",
         });
-
         if (!res.ok) throw new Error("Login failed");
-
         const { user } = await res.json();
         setUser(user);
+        localStorage.setItem("auth_user", JSON.stringify(user));
         router.push("/");
       } catch (error) {
         console.error("Login error:", error);
@@ -118,21 +118,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (data: SignupData) => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_URL}/auth/admin/signup`, {
+        const res = await fetch(`${API_URL}/auth/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
           credentials: "include",
         });
-
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          const errorMessage = errorData.message || "Signup failed";
-          throw new Error(errorMessage);
-        }
-
-        const { user } = await res.json();
+        if (!res.ok)
+          throw new Error(
+            (await res.json().catch(() => ({}))).message || "Signup failed"
+          );
+        const { user, token } = await res.json();
         setUser(user);
+        localStorage.setItem("auth_user", JSON.stringify(user));
+        if (token) localStorage.setItem("auth_token", token);
         router.push("/");
       } catch (error) {
         console.error("Signup error:", error);
@@ -154,8 +153,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout error:", error);
     } finally {
       setUser(null);
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
     }
-  }, [router]);
+  }, []);
 
   return (
     <AuthContext.Provider

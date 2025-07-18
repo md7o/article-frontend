@@ -64,7 +64,8 @@ export default function HomeHeader({
     <div className="flex flex-col lg:flex-row items-start gap-2 w-full">
       {/* Name - Full width on mobile */}
       <h2 className="text-xl sm:text-2xl font-bold bg-surface-elevated p-2 rounded-sm hover:bg-surface-alt/80 hover:opacity-80 transition-all duration-300 w-full lg:w-auto text-center lg:text-left">
-        Mohammed Alheraki
+        {/* Mohammed Alheraki */}
+        {user?.username || "wow"}
       </h2>
 
       {/* Action buttons - Grid layout on mobile, flex on desktop */}
