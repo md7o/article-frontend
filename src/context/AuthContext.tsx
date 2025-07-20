@@ -9,11 +9,18 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-export type User = { email: string; username: string; id?: string };
+export type User = {
+  email: string;
+  username: string;
+  id?: string;
+  role?: string;
+};
 export interface SignupData {
   username: string;
   email: string;
   password: string;
+  adminSecret: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -22,7 +29,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
-  me: () => Promise<void>;
+  validateSession: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -31,7 +38,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   signup: async () => {},
   logout: async () => {},
-  me: async () => {},
+  validateSession: async () => {},
 });
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
@@ -41,44 +48,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Initialize auth state from cookie
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        await me();
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    initializeAuth();
-  }, []);
-
-  const me = useCallback(async () => {
+  const validateSession = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/me`, {
+      const token = localStorage.getItem("auth_token");
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${API_URL}/auth/validateSession`, {
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
       });
-
       if (res.ok) {
         const data = await res.json();
-        setUser({
-          email: data.email,
-          username: data.username,
-          id: data.id,
-        });
+        setUser(data);
+        localStorage.setItem("auth_user", JSON.stringify(data));
       } else {
-        setUser(null);
+        const storedUser = localStorage.getItem("auth_user");
+        storedUser ? setUser(JSON.parse(storedUser)) : setUser(null);
+        if (!storedUser) {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
       }
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
-      setUser(null);
+    } catch {
+      const storedUser = localStorage.getItem("auth_user");
+      storedUser ? setUser(JSON.parse(storedUser)) : setUser(null);
+      if (!storedUser) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+      }
     }
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const storedUser = localStorage.getItem("auth_user");
+      if (storedUser) setUser(JSON.parse(storedUser));
+      await new Promise((r) => setTimeout(r, 100));
+      await validateSession();
+      setLoading(false);
+    })();
+  }, [validateSession]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -90,11 +99,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({ email, password }),
           credentials: "include",
         });
-
         if (!res.ok) throw new Error("Login failed");
-
         const { user } = await res.json();
         setUser(user);
+        localStorage.setItem("auth_user", JSON.stringify(user));
         router.push("/");
       } catch (error) {
         console.error("Login error:", error);
@@ -116,11 +124,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify(data),
           credentials: "include",
         });
-
-        if (!res.ok) throw new Error("Signup failed");
-
-        const { user } = await res.json();
+        if (!res.ok)
+          throw new Error(
+            (await res.json().catch(() => ({}))).message || "Signup failed"
+          );
+        const { user, token } = await res.json();
         setUser(user);
+        localStorage.setItem("auth_user", JSON.stringify(user));
+        if (token) localStorage.setItem("auth_token", token);
         router.push("/");
       } catch (error) {
         console.error("Signup error:", error);
@@ -142,12 +153,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout error:", error);
     } finally {
       setUser(null);
-      router.push("/login");
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
     }
-  }, [router]);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, me, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, signup, logout, validateSession, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

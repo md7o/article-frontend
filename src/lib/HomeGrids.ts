@@ -1,12 +1,12 @@
-export type GridSize = "small" | "medium" | "large" | "huge";
+export type GridSize = "small" | "long" | "large" | "huge";
 
 // Then the interface
 export interface IGridItem {
   id: string;
   title?: string;
   size: GridSize;
-  image: string;
   description?: string;
+  link?: string;
   background: string;
   textColor?: string;
   buttonText?: string;
@@ -16,55 +16,58 @@ export interface IGridItem {
 export const homeGrids: IGridItem[] = [
   {
     id: "blogs",
-    title: "Blogs",
-    description:
-      "Discover articles tutorials, and insights on the latest topics.",
-    image: "/assets/images/bg.jpg",
+    title: "Blog",
+    description: "Articles, guides, and dev insights.",
+    link: "/articles",
     size: "huge",
-    background: "bg-[#0f0f0f]",
+    background: "bg-gradient-to-br from-cyan-900 via-cyan-700 to-cyan-800",
     textColor: "text-white",
-    buttonText: "Discover",
-    tag: "#Read",
+    buttonText: "Read More",
+    tag: "#Blog",
   },
+
   {
-    id: "all-projects",
-    // title: "All Projects",
-    description: "My projects that I have worked on.",
-    image: "/assets/images/bg.jpg",
-    size: "medium",
-    background: "bg-[#FFF2D9FF]",
-    textColor: "text-black",
-    buttonText: "Take a look",
-  },
-  {
-    id: "profile",
-    title: "Contant us",
-    image: "/assets/images/bg.jpg",
-    size: "small",
-    background: "bg-[#D6FFBCFF]",
-    textColor: "text-black",
-    buttonText: "Contact",
-    tag: "#Ring",
-  },
-  {
-    id: "settings",
-    title: "Settings",
-    description: "Refactor you setting",
-    image: "/assets/images/bg.jpg",
-    size: "medium",
-    background: "bg-[#DCAFFEFF]",
-    textColor: "text-black",
-    buttonText: "Refactor",
+    id: "about",
+    title: "About",
+    description: "Who I am and what I do.",
+    link: "/about",
+    size: "large",
+    background: "bg-gradient-to-br from-amber-800 via-amber-600 to-amber-500",
+    textColor: "text-white",
+    buttonText: "Learn More",
+    tag: "#About",
   },
   {
     id: "live-projects",
     title: "Live Projects",
-    description: "Lively projects on websites",
-    image: "/assets/images/bg.jpg",
-    size: "large",
-    background: "bg-[#C9FFE8FF]",
-    textColor: "text-black",
-    buttonText: "Click here",
+    description: "Projects live on the web.",
+    link: "live-projects",
+    size: "small",
+    background: "bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900",
+    textColor: "text-white",
+    buttonText: "View Live",
     tag: "#Live",
+  },
+  {
+    id: "contact",
+    title: "Contact",
+    description: "Get in touch with me.",
+    link: "/contact",
+    size: "small",
+    background: "bg-gradient-to-br from-pink-900 via-pink-700 to-pink-900",
+    textColor: "text-white",
+    buttonText: "Contact Me",
+    tag: "#Contact",
+  },
+  {
+    id: "Education-Experience",
+    title: "Education & Experience",
+    description: "My educational and work experience.",
+    link: "/education-experiences",
+    size: "small",
+    background: "bg-gradient-to-br from-gray-900 via-slate-800 to-zinc-900",
+    textColor: "text-white",
+    buttonText: "View Details",
+    tag: "#Career",
   },
 ];

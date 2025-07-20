@@ -1,0 +1,56 @@
+@theme {
+  /* Base Colors */
+  --color-base-bg: #171717; /* Background base */
+  --color-surface-alt: #121212; /* container */
+  --color-surface-elevated: #2f2f2f; /* Buttons / cards */
+  --color-code-bg: #0d1117; /* Code block background */
+
+  /* Text Colors */
+
+  --color-light-span: #989898; /* Secondary text color */
+
+  /* State Colors */
+  --color-overlay: rgba(0, 0, 0, 0.2); /* Generic overlay or backdrop */
+  --color-overlay-strong: rgba(0, 0, 0, 0.7); /* Active elements */
+  --color-hover-light: #ffffff6e; /* Hover effects on dark bg */
+
+  /* Accent */
+  --color-accent: #50c878; /* emerald  */
+  --color-accent-hover: #74d9a2; /* emerald hover */
+
+  /* Font */
+  --font-lato: "Lato", sans-serif;
+  --font-IBMPlexSans: "IBM Plex Sans", sans-serif;
+
+  /* Rounded */
+  --radius-sm: 10px;
+  --radius-md: 20px;
+  --radius-lg: 30px;
+  --radius-xl: 40px;
+  --radius-full: 999px;
+
+  /* SideBar */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+}
+
+/* Banner stripe loading animation */
+@keyframes stripe-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-stripe-slide {
+  animation: stripe-slide 1.2s linear infinite;
+}
+
+body {
+  font-family: var(--font-IBMPlexSansArabic);
+  color: #ffffff;
+  background: var(--color-base-bg);
+}

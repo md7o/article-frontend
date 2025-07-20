@@ -18,11 +18,17 @@ export const baseAuthSchema = z.object({
 export const loginSchema = baseAuthSchema;
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-// Signup schema (extends base schema with `username`)
+// Signup schema (extends base schema with `username` and `adminSecret`)
 export const signupSchema = baseAuthSchema.extend({
   username: z
     .string()
     .min(2, { message: "Username must be at least 2 characters." })
-    .max(15, { message: "Username can’t exceed 15 characters." }),
+    .max(15, { message: "Username can't exceed 15 characters." }),
+  adminSecret: z
+    .string()
+    .min(1, { message: "Admin secret is required." })
+    .regex(/^[A-Za-z0-9_\-!@#$%^&*()+=[\]{}|;:,.<>?]+$/, {
+      message: "Invalid admin secret format. Please check your admin key.",
+    }),
 });
 export type SignupFormData = z.infer<typeof signupSchema>;
