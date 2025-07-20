@@ -1,9 +1,5 @@
-import Image from "next/image";
+import HomeClient from "@/components/pages/HomeComponents/HomeClient";
 
-export default function Home() {
-  return (
-    <main className="min-h-screen flex justify-center items-center">
-      <h1 className="text-4xl font-bold text-white">Congra</h1>
-    </main>
-  );
+export default async function Home() {
+  return <HomeClient />;
 }

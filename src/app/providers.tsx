@@ -1,7 +1,12 @@
-// app/providers.tsx
-import { AuthProvider } from '@/context/AuthContext';
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+import { AuthProvider } from "@/context/AuthContext";
+import { ArticlesProvider } from "@/context/ArticlesContext";
+// import other providers here...
 
 export function Providers({ children }: { children: ReactNode }) {
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <AuthProvider>
+      <ArticlesProvider>{children}</ArticlesProvider>
+    </AuthProvider>
+  );
 }

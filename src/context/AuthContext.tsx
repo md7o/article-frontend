@@ -1,69 +1,167 @@
-'use client';
+"use client";
 
-import { createContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
+import { useRouter } from "next/navigation";
 
-export type User = { email: string };
-
-export interface SignupData { username: string; email: string; password: string; }
+export type User = {
+  email: string;
+  username: string;
+  id?: string;
+  role?: string;
+};
+export interface SignupData {
+  username: string;
+  email: string;
+  password: string;
+  adminSecret: string;
+  role?: string;
+}
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
   signup: (data: SignupData) => Promise<void>;
+  logout: () => Promise<void>;
+  validateSession: () => Promise<void>;
 }
 
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  login: async () => {},
+  signup: async () => {},
+  logout: async () => {},
+  validateSession: async () => {},
+});
 
-export const AuthContext = createContext<AuthContextType>(null!);
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const { email } = JSON.parse(atob(token.split('.')[1]));
-      setUser({ email });
+  const validateSession = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("auth_token");
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${API_URL}/auth/validateSession`, {
+        credentials: "include",
+        headers,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+        localStorage.setItem("auth_user", JSON.stringify(data));
+      } else {
+        const storedUser = localStorage.getItem("auth_user");
+        storedUser ? setUser(JSON.parse(storedUser)) : setUser(null);
+        if (!storedUser) {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
+      }
+    } catch {
+      const storedUser = localStorage.getItem("auth_user");
+      storedUser ? setUser(JSON.parse(storedUser)) : setUser(null);
+      if (!storedUser) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+      }
     }
   }, []);
 
-  async function login(email: string, password: string) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const { access_token } = await res.json();
-    localStorage.setItem('token', access_token);
-    const { email: e } = JSON.parse(atob(access_token.split('.')[1]));
-    setUser({ email: e });
-    router.push('/dashboard');
-  }
+  useEffect(() => {
+    (async () => {
+      const storedUser = localStorage.getItem("auth_user");
+      if (storedUser) setUser(JSON.parse(storedUser));
+      await new Promise((r) => setTimeout(r, 100));
+      await validateSession();
+      setLoading(false);
+    })();
+  }, [validateSession]);
 
-  async function signup(data: SignupData) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) throw new Error('Signup failed');
-    const { access_token } = await res.json();
-    localStorage.setItem('token', access_token);
-    const { email } = JSON.parse(atob(access_token.split('.')[1]));
-    setUser({ email });
-    router.push('/dashboard');
-  }
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Login failed");
+        const { user } = await res.json();
+        setUser(user);
+        localStorage.setItem("auth_user", JSON.stringify(user));
+        router.push("/");
+      } catch (error) {
+        console.error("Login error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
 
-  function logout() {
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/login');
-  }
+  const signup = useCallback(
+    async (data: SignupData) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          credentials: "include",
+        });
+        if (!res.ok)
+          throw new Error(
+            (await res.json().catch(() => ({}))).message || "Signup failed"
+          );
+        const { user, token } = await res.json();
+        setUser(user);
+        localStorage.setItem("auth_user", JSON.stringify(user));
+        if (token) localStorage.setItem("auth_token", token);
+        router.push("/");
+      } catch (error) {
+        console.error("Signup error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+    }
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, signup }}>
+    <AuthContext.Provider
+      value={{ user, login, signup, logout, validateSession, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
