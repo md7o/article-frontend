@@ -65,7 +65,7 @@ export function ArticlesProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch(`${API_BASE}/${id}`, {
         method: "DELETE",
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
       });
       if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
       setArticles((prev) => prev.filter((a) => a.id !== id));

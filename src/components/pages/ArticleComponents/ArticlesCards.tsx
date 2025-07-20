@@ -137,7 +137,7 @@ export default function ArticlesCards() {
                     imageUrl={
                       article.coverImage
                         ? getImageUrl(article.coverImage)
-                        : "/assets/images/bg.jpg"
+                        : "/assets/images/NoImage.png"
                     }
                     title={article.title}
                     description={getArticleDescription(article.content)}

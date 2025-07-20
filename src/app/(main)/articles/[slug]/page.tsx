@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { ElementType } from "react";
 import CodeBlock from "@/components/ui/custom/CodeBlock";
 import Image from "next/image";
-import { getImageUrl } from "@/api/uploadImage";
 import Link from "next/link";
+import { ImageIcon } from "lucide-react";
+import { getImageUrl } from "@/api/uploadImage";
 
 interface MarkAttrs {
   color?: string;
@@ -146,9 +147,9 @@ export default async function ArticleDetailPage({ params }: Props) {
           src={
             article.coverImage
               ? getImageUrl(article.coverImage)
-              : "/assets/images/bg.jpg"
+              : "/assets/images/NoImage.png"
           }
-          alt={article.title}
+          alt={article.coverImage}
           fill
           className="object-cover"
           priority

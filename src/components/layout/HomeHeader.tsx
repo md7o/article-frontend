@@ -17,6 +17,7 @@ import { usePageLoading } from "@/components/pages/HomeComponents/HomeClient";
 import React, { useContext } from "react";
 import Link from "next/link";
 import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface HomeHeaderProps {
   emailCopied: boolean;
@@ -27,11 +28,11 @@ export default function HomeHeader({
   emailCopied,
   setEmailCopied,
 }: HomeHeaderProps) {
-  const { handleGridItemClick } = usePageLoading();
+  const router = useRouter();
   const { user, logout } = useContext(AuthContext);
 
   const handleSearchClick = () => {
-    handleGridItemClick("/articles?focus=search");
+    router.push("/articles?focus=search");
   };
 
   const handleEmailClick = () => {
@@ -63,23 +64,24 @@ export default function HomeHeader({
   return (
     <div className="flex flex-col lg:flex-row items-start gap-2 w-full">
       {/* Name - Full width on mobile */}
-      <h2 className="text-xl sm:text-2xl font-bold bg-surface-elevated p-2 rounded-sm hover:bg-surface-alt/80 hover:opacity-80 transition-all duration-300 w-full lg:w-auto text-center lg:text-left">
-        {/* Mohammed Alheraki */}
-        {user?.username || "wow"}
+      <h2 className="text-lg xl:text-2xl font-bold bg-surface-elevated p-2 rounded-sm hover:bg-surface-alt/80 hover:opacity-80 transition-all duration-300 w-full lg:w-auto text-center lg:text-left">
+        Mohammed Ayman Alheraki
       </h2>
 
       {/* Action buttons - Grid layout on mobile, flex on desktop */}
       <div className="flex flex-wrap sm:grid sm:grid-cols-2 lg:flex gap-2 w-full lg:w-auto">
         {/* Search - Full width on mobile */}
-        <div
+        <button
+          type="button"
           className="flex items-center justify-center gap-2 bg-surface-elevated p-2 rounded-sm cursor-pointer hover:bg-surface-alt/80 hover:scale-105 hover:opacity-80 transition-all duration-300 flex-1 sm:col-span-2 lg:flex-none lg:w-auto"
           onClick={handleSearchClick}
+          aria-label="Search articles"
         >
           <Search size={24} className="sm:w-[30px] sm:h-[30px]" />
           <p className="text-sm sm:text-base hidden sm:block">
             Search articles
           </p>
-        </div>
+        </button>
 
         {/* Social icons - Smaller on mobile */}
         <TooltipProvider>
@@ -138,8 +140,6 @@ export default function HomeHeader({
             </div>
           </button>
         )}
-
-        {/* Logout button for admin only */}
       </div>
     </div>
   );

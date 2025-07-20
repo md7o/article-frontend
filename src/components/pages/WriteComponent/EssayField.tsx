@@ -8,7 +8,7 @@ import { useArticles } from "@/context/ArticlesContext";
 import { AuthContext } from "@/context/AuthContext";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ContentTestField from "./WriteUi/ContentTestField";
+import ContentField from "./WriteUi/ContentField";
 import PublishDialog from "./WriteUi/PublishDialog";
 import { JSONContent } from "@tiptap/react";
 
@@ -231,8 +231,8 @@ export default function EssayField({ editId }: EssayFieldProps) {
       />
       {/* Only render the editor when not loading article data */}
       {(!editId || !isLoadingArticle) && (
-        <ContentTestField
-          key={isEditMode ? `edit-${editId}` : "new"} // Force remount when switching between edit and new
+        <ContentField
+          key={isEditMode ? `edit-${editId}` : "new"}
           onChange={setEditorContent}
           initialContent={editorContent}
         />

@@ -78,6 +78,7 @@ export default function PublishDialog({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0] || null;
       setUploadError(null);
+      // Don't upload here, just validate and preview
       if (!file) {
         setSelectedImage(null);
         setImagePreview(null);
@@ -93,6 +94,7 @@ export default function PublishDialog({
         return;
       }
       setSelectedImage(file);
+      setUploadedFilename(null);
       try {
         const reader = new FileReader();
         reader.onload = (e) => setImagePreview(e.target?.result as string);
@@ -107,18 +109,16 @@ export default function PublishDialog({
   );
 
   const handlePublish = useCallback(async () => {
-    if (!selectedImage && !uploadedFilename) {
-      setUploadError("Please upload a cover image first");
-      return;
-    }
-    let filename = uploadedFilename;
-    if (selectedImage && !uploadedFilename) {
+    // If no uploadedFilename, but selectedImage exists, upload now
+    if (!uploadedFilename && selectedImage) {
       setIsUploading(true);
       try {
         if (!user) throw new Error("You must be logged in to upload images");
         await validateSession();
-        filename = await uploadImage(selectedImage);
+        const filename = await uploadImage(selectedImage);
         setUploadedFilename(filename);
+        await onConfirm(filename);
+        if (!isSubmitting) router.push("/articles");
       } catch (error: any) {
         let msg = "Failed to upload image. Please try again.";
         if (
@@ -138,24 +138,27 @@ export default function PublishDialog({
         setUploadError(msg);
         setSelectedImage(null);
         setImagePreview(null);
-        setIsUploading(false);
-        return;
       }
       setIsUploading(false);
+      return;
+    }
+    // If no image at all
+    if (!uploadedFilename) {
+      setUploadError("Please upload a cover image first");
+      return;
     }
     try {
-      await onConfirm(filename!);
-      if (!isSubmitting && !isUploading) router.push("/articles");
+      await onConfirm(uploadedFilename);
+      if (!isSubmitting) router.push("/articles");
     } catch {
       setUploadError("Failed to publish article. Please try again.");
     }
   }, [
-    selectedImage,
     uploadedFilename,
+    selectedImage,
     onConfirm,
     router,
     isSubmitting,
-    isUploading,
     user,
     validateSession,
   ]);
@@ -206,18 +209,18 @@ export default function PublishDialog({
                 Title
               </span>
             </div>
-            <p className="font-medium text-light-span text-sm line-clamp-2 break-words overflow-hidden">
+            <p className="font-medium text-light-span text-sm line-clamp-2 break-words overflow-hidden max-w-sm overflow-x-auto">
               {title || "Untitled Article"}
             </p>
           </div>
-          <div className="bg-[var(--color-surface-elevated)] p-3 rounded-[var(--radius-sm)] border border-white/10">
+          <div className="bg-surface-elevated p-3 rounded-sm border border-white/10">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full flex-shrink-0" />
               <span className="text-xs font-medium text-[var(--color-light-span)] uppercase tracking-wide">
                 Content
               </span>
             </div>
-            <p className="text-sm text-[var(--color-light-span)] leading-relaxed line-clamp-2 break-words overflow-hidden">
+            <p className="text-sm text-light-span leading-relaxed line-clamp-2 break-words truncate overflow-clip max-w-sm overflow-x-auto">
               {content.content?.[0]?.content?.[0]?.text ||
                 "No content available"}
             </p>
@@ -251,7 +254,7 @@ export default function PublishDialog({
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-[var(--color-accent)] rounded-full animate-pulse" />
-                        <p className="text-sm text-white font-bold truncate tracking-wide">
+                        <p className="text-sm text-white font-bold truncate tracking-wide max-w-[15rem] line-clamp-2">
                           {selectedImage?.name ||
                             existingCoverImage ||
                             "Cover Image"}
@@ -325,7 +328,6 @@ export default function PublishDialog({
           </Button>
           <Button
             onClick={handlePublish}
-            disabled={!uploadedFilename || isSubmitting || isUploading}
             className="flex-1 bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] rounded-[var(--radius-sm)] disabled:opacity-50 disabled:bg-[var(--color-light-span)]"
           >
             {/* Show loading spinner if submitting or uploading */}
