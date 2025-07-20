@@ -3,8 +3,8 @@ import { ElementType } from "react";
 import CodeBlock from "@/components/ui/custom/CodeBlock";
 import Image from "next/image";
 import Link from "next/link";
-import { ImageIcon } from "lucide-react";
 import { getImageUrl } from "@/api/uploadImage";
+import { metadata } from "@/app/layout";
 
 interface MarkAttrs {
   color?: string;
@@ -293,4 +293,20 @@ export default async function ArticleDetailPage({ params }: Props) {
       </div>
     </article>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/articles/${params.slug}`,
+    { cache: "no-store" }
+  );
+  if (!res.ok) return { title: "Article Not Found" };
+  const article: Article = await res.json();
+  return {
+    title: article.title,
+  };
 }

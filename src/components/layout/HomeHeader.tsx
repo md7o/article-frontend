@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "../ui/shadcn/tooltip";
-import { usePageLoading } from "@/components/pages/HomeComponents/HomeClient";
+import Image from "next/image";
 import React, { useContext } from "react";
 import Link from "next/link";
 import { AuthContext } from "@/context/AuthContext";
@@ -62,11 +62,15 @@ export default function HomeHeader({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row items-start gap-2 w-full">
+    <div className="flex flex-col lg:flex-row items-start gap-2 w-full mb-1">
       {/* Name - Full width on mobile */}
-      <h2 className="text-lg xl:text-2xl font-bold bg-surface-elevated p-2 rounded-sm hover:bg-surface-alt/80 hover:opacity-80 transition-all duration-300 w-full lg:w-auto text-center lg:text-left">
-        Mohammed Ayman Alheraki
-      </h2>
+      <Image
+        src="/assets/images/Logo.png"
+        alt="Mocodes"
+        width={100}
+        height={100}
+        className="w-auto h-auto"
+      />
 
       {/* Action buttons - Grid layout on mobile, flex on desktop */}
       <div className="flex flex-wrap sm:grid sm:grid-cols-2 lg:flex gap-2 w-full lg:w-auto">
