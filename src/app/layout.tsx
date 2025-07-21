@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import ConditionalHeader from "@/components/layout/ConditionalHeader";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
+import Script from "next/script";
 
 const IBMPlexSansArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-IBMPlexSans",
@@ -67,6 +68,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+          `}
+        </Script>
+      </head>
       <body
         className={`${IBMPlexSansArabic.variable} ${IBMPlexMono.variable} `}
       >
