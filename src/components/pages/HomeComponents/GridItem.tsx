@@ -3,15 +3,15 @@
 import Link from "next/link";
 import type { IGridItem } from "@/lib/HomeGrids";
 import { ArrowUpRight } from "lucide-react";
-import { useState } from "react";
-import LoadingSpinner from "@/components/ui/custom/LoadingSpinner";
+// import { useState } from "react";
+// import LoadingSpinner from "@/components/ui/custom/LoadingSpinner";
 
 interface GridItemProps {
   item: IGridItem;
 }
 
 export default function GridItem({ item }: GridItemProps) {
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const sizeClasses = {
     huge: "col-span-2 row-span-1 h-[530px]",
     large: "col-span-2 row-span-1 h-[260px]",
@@ -19,31 +19,31 @@ export default function GridItem({ item }: GridItemProps) {
     long: "col-span-1 row-span-1 h-[460px]",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (item.link) {
-      e.preventDefault();
-      if (item.id === "blogs") {
-        setLoading(true);
-        setTimeout(() => {
-          window.location.href = item.link!;
-        }, 100);
-      } else {
-        window.location.href = item.link!;
-      }
-    }
-  };
+  // const handleClick = (e: React.MouseEvent) => {
+  //   if (item.link) {
+  //     e.preventDefault();
+  //     if (item.id === "blogs") {
+  //       setLoading(true);
+  //       setTimeout(() => {
+  //         window.location.href = item.link!;
+  //       }, 100);
+  //     } else {
+  //       window.location.href = item.link!;
+  //     }
+  //   }
+  // };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center">
-        <div className="flex flex-col items-center gap-8 ">
-          <div className="relative">
-            <LoadingSpinner size="lg" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-md flex items-center justify-center">
+  //       <div className="flex flex-col items-center gap-8 ">
+  //         <div className="relative">
+  //           <LoadingSpinner size="lg" />
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div
@@ -54,7 +54,7 @@ export default function GridItem({ item }: GridItemProps) {
           href={item.link}
           className="absolute inset-0 z-50"
           aria-label={`Go to ${item.title}`}
-          onClick={handleClick}
+          // onClick={handleClick}
         />
       )}
 
