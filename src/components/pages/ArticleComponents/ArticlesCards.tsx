@@ -56,9 +56,14 @@ export default function ArticlesCards() {
       content &&
       typeof content === "object" &&
       "content" in content &&
-      Array.isArray((content as any).content)
+      Array.isArray(
+        (content as { content?: Array<{ content?: Array<{ text?: string }> }> })
+          .content
+      )
     ) {
-      const first = (content as any).content?.[0]?.content?.[0]?.text;
+      const first = (
+        content as { content?: Array<{ content?: Array<{ text?: string }> }> }
+      ).content?.[0]?.content?.[0]?.text;
       return first || "No content";
     }
     return "No content";
