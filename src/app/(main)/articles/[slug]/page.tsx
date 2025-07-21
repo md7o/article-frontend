@@ -4,7 +4,7 @@ import CodeBlock from "@/components/ui/custom/CodeBlock";
 import Image from "next/image";
 import Link from "next/link";
 import { getImageUrl } from "@/api/uploadImage";
-import { metadata } from "@/app/layout";
+import type { Metadata } from "next";
 
 interface MarkAttrs {
   color?: string;
@@ -72,19 +72,20 @@ const LANGUAGES: Language[] = [
   { label: "HTML", value: "html" },
 ];
 
-type Props = {
-  params: Promise<{ slug: string }>;
-};
+// type Props = {
+//   params: Promise<{ slug: string }>;
+// };
 
 const HeadingComponents: Record<number, ElementType> = {
   1: "h2",
   2: "h3",
 };
 
-export default async function ArticleDetailPage({ params }: Props) {
-  // const [imageError, setImageError] = useState(false);
-  // const [isLoading, setIsLoading] = useState(true);
-
+export default async function ArticleDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const resolvedParams = await params;
 
   const res = await fetch(
@@ -298,10 +299,12 @@ export default async function ArticleDetailPage({ params }: Props) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}) {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/articles/${params.slug}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/articles/${resolvedParams.slug}`,
     { cache: "no-store" }
   );
   if (!res.ok) return { title: "Article Not Found" };

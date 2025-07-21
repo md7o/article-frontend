@@ -119,22 +119,27 @@ export default function PublishDialog({
         setUploadedFilename(filename);
         await onConfirm(filename);
         if (!isSubmitting) router.push("/articles");
-      } catch (error: any) {
+      } catch (error: unknown) {
         let msg = "Failed to upload image. Please try again.";
         if (
-          error?.message?.includes("401") ||
-          error?.message?.includes("Unauthorized")
-        )
-          msg = "Authentication failed. Please log out and log back in.";
-        else if (error?.message?.includes("Session expired"))
-          msg = "Your session has expired. Please log in again.";
-        else if (error?.message?.includes("413"))
-          msg = "File too large. Please select a smaller image.";
-        else if (error?.message?.includes("403"))
-          msg = "Permission denied. You don't have access to upload images.";
-        else if (error?.message?.includes("500"))
-          msg = "Server error. Please try again later.";
-        else if (error?.message) msg = error.message;
+          typeof error === "object" &&
+          error !== null &&
+          "message" in error &&
+          typeof (error as { message?: string }).message === "string"
+        ) {
+          const message = (error as { message: string }).message;
+          if (message.includes("401") || message.includes("Unauthorized"))
+            msg = "Authentication failed. Please log out and log back in.";
+          else if (message.includes("Session expired"))
+            msg = "Your session has expired. Please log in again.";
+          else if (message.includes("413"))
+            msg = "File too large. Please select a smaller image.";
+          else if (message.includes("403"))
+            msg = "Permission denied. You don't have access to upload images.";
+          else if (message.includes("500"))
+            msg = "Server error. Please try again later.";
+          else msg = message;
+        }
         setUploadError(msg);
         setSelectedImage(null);
         setImagePreview(null);
