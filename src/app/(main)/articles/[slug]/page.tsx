@@ -1,69 +1,15 @@
+// ======================= Imports =======================
 import { notFound } from "next/navigation";
-import { ElementType } from "react";
 import CodeBlock from "@/components/ui/custom/CodeBlock";
 import Image from "next/image";
 import Link from "next/link";
 import { getImageUrl } from "@/api/uploadImage";
 import type { Metadata } from "next";
+import React from "react";
+import { TextMark, TipTapContent, Article } from "@/lib/ReadInterfaces";
 
-interface MarkAttrs {
-  color?: string;
-  level?: number;
-  language?: string;
-}
-
-interface TextMark {
-  type: "bold" | "italic" | "highlight" | "code" | "link";
-  attrs?: MarkAttrs;
-}
-
-interface TextBlock {
-  type: string;
-  text?: string;
-  marks?: TextMark[];
-}
-
-interface ContentBlockAttrs {
-  level?: number;
-  language?: string;
-  start?: number;
-  color?: string;
-  textAlign?: "left" | "center" | "right";
-}
-
-interface ContentBlock {
-  type:
-    | "paragraph"
-    | "heading"
-    | "codeBlock"
-    | "bulletList"
-    | "orderedList"
-    | "alignLeft"
-    | "alignCenter"
-    | "alignRight";
-  attrs?: ContentBlockAttrs;
-  content?: TextBlock[];
-}
-
-interface TipTapContent {
-  type: "doc";
-  content?: ContentBlock[];
-}
-
-interface Article {
-  title: string;
-  titleAlign?: string;
-  content: string | TipTapContent;
-  coverImage: string;
-  createdAt: string;
-}
-
-interface Language {
-  label: string;
-  value: string;
-}
-
-const LANGUAGES: Language[] = [
+// ======================= Constants =======================
+const LANGUAGES = [
   { label: "JavaScript", value: "js" },
   { label: "TypeScript", value: "ts" },
   { label: "Python", value: "python" },
@@ -71,69 +17,107 @@ const LANGUAGES: Language[] = [
   { label: "CSS", value: "css" },
   { label: "HTML", value: "html" },
 ];
-
-// type Props = {
-//   params: Promise<{ slug: string }>;
-// };
-
-const HeadingComponents: Record<number, ElementType> = {
-  1: "h2",
-  2: "h3",
+const HeadingComponents: { [key: string]: string } = {
+  "1": "h2",
+  "2": "h3",
 };
 
+// ======================= Helper Functions =======================
+const getTextAlignClass = (align?: string) =>
+  align === "RIGHT_ALIGN" || align === "right"
+    ? "text-right"
+    : align === "center"
+      ? "text-center"
+      : "text-left";
+const getMarkClasses = (marks?: TextMark[]) =>
+  [
+    marks?.some((m) => m.type === "bold") && "font-bold",
+    marks?.some((m) => m.type === "italic") && "italic",
+    marks?.some((m) => m.type === "highlight") &&
+      "bg-yellow-200 text-black rounded-sm px-1 font-medium",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+// ======================= Main Component =======================
 export default async function ArticleDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const resolvedParams = await params;
-
+  // ----------- Data Fetching -----------
+  const { slug } = await params;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/articles/${resolvedParams.slug}`,
-    {
-      cache: "no-store",
-    }
+    `${process.env.NEXT_PUBLIC_API_URL}/articles/${slug}`,
+    { cache: "no-store" }
   );
-
   if (!res.ok) return notFound();
-
   const article: Article = await res.json();
   const content: TipTapContent =
     typeof article.content === "string"
       ? JSON.parse(article.content)
       : article.content;
 
-  // Determine title alignment class
-  const titleAlignClass =
-    article.titleAlign === "RIGHT_ALIGN" ? "text-right" : "text-left";
+  // ----------- Render -----------
+  // Count total words in content blocks
+  const totalWords =
+    content?.content?.reduce((acc, block) => {
+      if (
+        block.type === "paragraph" ||
+        block.type === "heading" ||
+        block.type === "codeBlock"
+      ) {
+        return (
+          acc +
+          (block.content?.reduce(
+            (a, tb) => a + (tb.text ? tb.text.split(/\s+/).length : 0),
+            0
+          ) || 0)
+        );
+      }
+      if (block.type === "bulletList" || block.type === "orderedList") {
+        return (
+          acc +
+          (block.content?.reduce(
+            (a, item) => a + (item.text ? item.text.split(/\s+/).length : 0),
+            0
+          ) || 0)
+        );
+      }
+      return acc;
+    }, 0) ?? 0;
+  const contentFontSize = totalWords < 150 ? "text-3xl" : "text-xl";
 
   return (
-    <article className="p-6 max-w-4xl mx-auto text-white">
+    <article className="p-2 max-w-4xl mx-auto text-white">
+      {/* Article Title */}
       <h1
-        className={`text-4xl md:text-6xl font-medium mb-5 text-white ${titleAlignClass}`}
+        className={`text-4xl md:text-7xl font-bold mb-5 text-white ${getTextAlignClass(
+          article.titleAlign
+        )}`}
       >
         {article.title}
       </h1>
 
-      {/* User Avatar Section */}
+      {/* Author Info */}
       <Link href="/about">
         <div
-          className={`flex items-center gap-2 mb-12 hover:translate-y-1 transition-transform duration-300 ${article.titleAlign === "RIGHT_ALIGN" ? "justify-start flex-row-reverse" : "justify-start"}`}
+          className={`flex items-center gap-2 mb-32 hover:translate-y-1 transition-transform duration-300 ${getTextAlignClass(
+            article.titleAlign
+          )}`}
         >
-          <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center ">
+          <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center">
             <Image
-              src={"/assets/images/profile.jpg"}
-              alt={"avatar"}
+              src="/assets/images/profile.jpg"
+              alt="avatar"
               width={300}
               height={300}
               priority
               className="object-cover rounded-full border-2 border-accent/30"
             />
-
-            {/* <User className="w-6 h-6 text-white" /> */}
           </div>
           <div
-            className={`flex flex-col ${article.titleAlign === "RIGHT_ALIGN" ? "text-right" : "text-left"}`}
+            className={`flex flex-col ${getTextAlignClass(article.titleAlign)}`}
           >
             <span className="text-white font-medium">Mohammed Alheraki</span>
             <span className="text-gray-400 text-sm">
@@ -143,7 +127,8 @@ export default async function ArticleDetailPage({
         </div>
       </Link>
 
-      <div className="relative w-full h-[400px] mb-5 mt-20 rounded-sm overflow-hidden">
+      {/* Cover Image */}
+      <div className="relative w-full h-[32rem] mt-20 rounded-sm overflow-hidden">
         <Image
           src={
             article.coverImage
@@ -158,73 +143,56 @@ export default async function ArticleDetailPage({
         />
       </div>
 
-      <div className="space-y-4 text-white">
-        {content?.content?.map((block: ContentBlock, i: number) => {
+      {/* Article Content Blocks */}
+      <div className={`space-y-4 text-white mt-10 mb-32 `}>
+        {content?.content?.map((block, i) => {
+          // ----------- Paragraph Block -----------
           if (block.type === "paragraph") {
-            const styles = [];
-            styles.push("text-base leading-relaxed text-white");
-            styles.push("whitespace-pre-wrap");
-
-            if (block.attrs?.textAlign === "center") {
-              styles.push("text-center");
-            } else if (block.attrs?.textAlign === "right") {
-              styles.push("text-right");
-            }
-
             return (
-              <p key={i} className={styles.join(" ")}>
-                {block.content?.map((textBlock: TextBlock, j: number) => {
-                  const hasMarks =
-                    textBlock.marks && textBlock.marks.length > 0;
-                  if (!hasMarks) return textBlock.text;
-
-                  const classes = [
-                    textBlock.marks?.some((mark) => mark.type === "bold") &&
-                      "font-bold",
-                    textBlock.marks?.some((mark) => mark.type === "italic") &&
-                      "italic",
-                    textBlock.marks?.some(
-                      (mark) => mark.type === "highlight"
-                    ) && "bg-yellow-200 text-black rounded-sm px-1 font-medium",
-                  ]
-                    .filter(Boolean)
-                    .join(" ");
-
-                  return (
-                    <span key={j} className={classes}>
+              <p
+                key={i}
+                className={`${contentFontSize} leading-relaxed text-white whitespace-pre-wrap ${getTextAlignClass(
+                  block.attrs?.textAlign
+                )}`}
+              >
+                {block.content?.map((textBlock, j) => {
+                  const hasMarks = textBlock.marks?.length;
+                  return hasMarks ? (
+                    <span key={j} className={getMarkClasses(textBlock.marks)}>
                       {textBlock.text}
                     </span>
+                  ) : (
+                    textBlock.text
                   );
                 })}
               </p>
             );
           }
+          // ----------- Heading Block -----------
           if (block.type === "heading") {
-            const level = Math.min(Math.max(block.attrs?.level || 1, 1), 2); // Limit to level 1 or 2
+            const level = Math.min(Math.max(block.attrs?.level || 1, 1), 2);
+            const HeadingTag = HeadingComponents[level.toString()] || "h2";
             const headingStyle =
               level === 1
                 ? "text-3xl font-bold text-white"
-                : "text-2xl font-semibold text-white"; // Use normal text sizes with white color
-            const HeadingTag = HeadingComponents[level] || HeadingComponents[1]; // Fallback to h2 if invalid level
-
-            let alignClass = "";
-            if (block.attrs?.textAlign === "center") {
-              alignClass = "text-center";
-            } else if (block.attrs?.textAlign === "right") {
-              alignClass = "text-right";
-            }
-
-            return (
-              <HeadingTag key={i} className={`${headingStyle} ${alignClass}`}>
-                {block.content?.[0]?.text || ""}
-              </HeadingTag>
+                : "text-2xl font-semibold text-white";
+            return React.createElement(
+              HeadingTag,
+              {
+                key: i,
+                className: `${headingStyle} ${getTextAlignClass(
+                  block.attrs?.textAlign
+                )}`,
+              },
+              block.content?.[0]?.text || ""
             );
           }
+          // ----------- Code Block -----------
           if (block.type === "codeBlock") {
             const language = block.attrs?.language || "";
             const languageLabel = language
               ? LANGUAGES.find((l) => l.value === language)?.label || "Code"
-              : ""; // Empty string triggers auto-detection in CodeBlock
+              : "";
             return (
               <CodeBlock
                 key={i}
@@ -234,61 +202,32 @@ export default async function ArticleDetailPage({
               />
             );
           }
-          if (block.type === "bulletList") {
-            const styles = [];
-            styles.push(
-              "list-none",
-              "pl-8",
-              "space-y-2",
-              "text-base leading-relaxed text-white"
-            );
-
-            if (block.attrs?.textAlign === "center") {
-              styles.push("text-center");
-            } else if (block.attrs?.textAlign === "right") {
-              styles.push("text-right");
-            }
-
+          // ----------- List Blocks -----------
+          if (block.type === "bulletList" || block.type === "orderedList") {
+            const ListTag = block.type === "bulletList" ? "ul" : "ol";
             return (
-              <ul key={i} className={styles.join(" ")}>
-                {block.content?.map((item: TextBlock, j: number) => (
+              <ListTag
+                key={i}
+                className={`list-none pl-8 space-y-2 text-base leading-relaxed text-white ${getTextAlignClass(
+                  block.attrs?.textAlign
+                )}`}
+              >
+                {block.content?.map((item, j) => (
                   <li key={j} className="relative pl-2 text-white">
-                    <span className="absolute -left-4 top-0 text-white">•</span>
-                    {item.text}
-                  </li>
-                ))}
-              </ul>
-            );
-          }
-          if (block.type === "orderedList") {
-            const styles = [];
-            styles.push(
-              "list-none",
-              "pl-8",
-              "space-y-2",
-              "text-base leading-relaxed text-white"
-            );
-
-            if (block.attrs?.textAlign === "center") {
-              styles.push("text-center");
-            } else if (block.attrs?.textAlign === "right") {
-              styles.push("text-right");
-            }
-
-            return (
-              <ol key={i} className={styles.join(" ")}>
-                {block.content?.map((item: TextBlock, j: number) => (
-                  <li key={j} className="relative pl-2 text-white">
-                    <span className="absolute -left-6 top-0 text-white">
-                      {j + 1}.
+                    <span
+                      className={`absolute ${
+                        block.type === "bulletList" ? "-left-4" : "-left-6"
+                      } top-0 text-white`}
+                    >
+                      {block.type === "bulletList" ? "•" : `${j + 1}.`}
                     </span>
                     {item.text}
                   </li>
                 ))}
-              </ol>
+              </ListTag>
             );
           }
-
+          // ----------- Unknown Block -----------
           return null;
         })}
       </div>
@@ -296,20 +235,18 @@ export default async function ArticleDetailPage({
   );
 }
 
+// ======================= Metadata Function =======================
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const resolvedParams = await params;
-
+  const { slug } = await params;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/articles/${resolvedParams.slug}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/articles/${slug}`,
     { cache: "no-store" }
   );
   if (!res.ok) return { title: "Article Not Found" };
   const article: Article = await res.json();
-  return {
-    title: article.title,
-  };
+  return { title: article.title };
 }

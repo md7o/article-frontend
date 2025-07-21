@@ -49,13 +49,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const validateSession = useCallback(async () => {
-    // Check if cookies exist before making the request
-    if (!document.cookie || document.cookie.trim() === "") {
-      setUser(null);
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("auth_user");
-      return;
-    }
     try {
       const token = localStorage.getItem("auth_token");
       const headers: HeadersInit = { "Content-Type": "application/json" };
@@ -69,28 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(data);
         localStorage.setItem("auth_user", JSON.stringify(data));
       } else {
-        const storedUser = localStorage.getItem("auth_user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        } else {
-          setUser(null);
-        }
-        if (!storedUser) {
-          localStorage.removeItem("auth_token");
-          localStorage.removeItem("auth_user");
-        }
-      }
-    } catch {
-      const storedUser = localStorage.getItem("auth_user");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      } else {
         setUser(null);
-      }
-      if (!storedUser) {
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_user");
       }
+    } catch {
+      setUser(null);
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
     }
   }, []);
 

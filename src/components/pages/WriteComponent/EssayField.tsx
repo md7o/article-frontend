@@ -116,6 +116,11 @@ export default function EssayField({ editId }: EssayFieldProps) {
     if (!imageFilename) return alert("Cover image is required");
     try {
       setSubmitting(true);
+      const token = localStorage.getItem("auth_token");
+      const axiosConfig = {
+        withCredentials: true,
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      };
 
       if (isEditMode && editId) {
         // Update existing article
@@ -127,9 +132,7 @@ export default function EssayField({ editId }: EssayFieldProps) {
             content: editorContent,
             coverImage: imageFilename,
           },
-          {
-            withCredentials: true,
-          }
+          axiosConfig
         );
       } else {
         // Create new article
@@ -141,9 +144,7 @@ export default function EssayField({ editId }: EssayFieldProps) {
             content: editorContent,
             coverImage: imageFilename,
           },
-          {
-            withCredentials: true,
-          }
+          axiosConfig
         );
       }
 

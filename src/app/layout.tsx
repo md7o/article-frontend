@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import ConditionalHeader from "@/components/layout/ConditionalHeader";
+import ConditionalFooter from "@/components/layout/ConditionalFooter";
 
 const IBMPlexSansArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-IBMPlexSans",
@@ -66,10 +67,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${IBMPlexSansArabic.variable} ${IBMPlexMono.variable}`}>
+      <body
+        className={`${IBMPlexSansArabic.variable} ${IBMPlexMono.variable} `}
+      >
         <Providers>
           <ConditionalHeader />
-          {children}
+          <main>{children}</main>
+          <ConditionalFooter />
         </Providers>
       </body>
     </html>
