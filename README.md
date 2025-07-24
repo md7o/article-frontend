@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# mocodes
 
-## Getting Started
+## Overview
 
-First, run the development server:
+About this website, my personal portfolio that showcases my projects and skills and blogs.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌐 Visit the Website  
+👉 <a href="https://mocodes.blog/live-projects" target="_blank" rel="noopener noreferrer">**mocodes**</a>  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Excerpt from the app
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+<p >
+  <img width="600" alt="screen" src="https://github.com/user-attachments/assets/affd9d4c-f61e-492f-92d0-e61e92e37e5f" />
+</p>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## For help and proposals
 
-## Learn More
+if you encounter any bug while using the apps or want say suggestions please connect with us on twitter for any suggestions
 
-To learn more about Next.js, take a look at the following resources:
+## 🔗 Find me on
+[!["Follow me on Twitter"](https://img.shields.io/twitter/follow/pr_Mais?label=Follow%20me)](https://twitter.com/Md7oHe)
+[!["LinkedIn"](https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin&labelColor=blue)](https://www.linkedin.com/in/mohammed-alheraki-6bb97b247/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
