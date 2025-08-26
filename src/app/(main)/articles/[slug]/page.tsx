@@ -92,7 +92,7 @@ export default async function ArticleDetailPage({
     <article className="p-2 max-w-4xl mx-auto text-white">
       {/* Article Title */}
       <h1
-        className={`text-4xl md:text-7xl font-bold mb-5 text-white ${getTextAlignClass(
+        className={`text-4xl md:text-5xl font-bold mb-5 text-white ${getTextAlignClass(
           article.titleAlign
         )}`}
       >
@@ -154,6 +154,7 @@ export default async function ArticleDetailPage({
                 className={`${contentFontSize} leading-relaxed text-white whitespace-pre-wrap ${getTextAlignClass(
                   block.attrs?.textAlign
                 )}`}
+                dir={block.attrs?.textAlign === "right" ? "rtl" : "ltr"}
               >
                 {block.content?.map((textBlock, j) => {
                   const hasMarks = textBlock.marks?.length;
@@ -183,6 +184,7 @@ export default async function ArticleDetailPage({
                 className: `${headingStyle} ${getTextAlignClass(
                   block.attrs?.textAlign
                 )}`,
+                dir: block.attrs?.textAlign === "right" ? "rtl" : "ltr",
               },
               block.content?.[0]?.text || ""
             );
@@ -205,23 +207,46 @@ export default async function ArticleDetailPage({
           // ----------- List Blocks -----------
           if (block.type === "bulletList" || block.type === "orderedList") {
             const ListTag = block.type === "bulletList" ? "ul" : "ol";
+            const isRTL = block.attrs?.textAlign === "right";
             return (
               <ListTag
                 key={i}
-                className={`list-none pl-8 space-y-2 text-base leading-relaxed text-white ${getTextAlignClass(
+                className={`list-none ${isRTL ? "pr-8" : "pl-8"} space-y-2 text-base leading-relaxed text-white ${getTextAlignClass(
                   block.attrs?.textAlign
                 )}`}
+                dir={isRTL ? "rtl" : "ltr"}
               >
-                {block.content?.map((item, j) => (
-                  <li key={j} className="relative pl-2 text-white">
+                {block.content?.map((item: any, j: number) => (
+                  <li key={j} className={`relative ${isRTL ? "pr-2" : "pl-2"} text-white`}>
                     <span
-                      className={`absolute ${
-                        block.type === "bulletList" ? "-left-4" : "-left-6"
-                      } top-0 text-white`}
+                      className={`absolute top-0 text-white ${
+                        isRTL
+                          ? block.type === "bulletList"
+                            ? "-right-4"
+                            : "-right-6"
+                          : block.type === "bulletList"
+                          ? "-left-4"
+                          : "-left-6"
+                      }`}
                     >
                       {block.type === "bulletList" ? "•" : `${j + 1}.`}
                     </span>
-                    {item.text}
+                    {/* Render nested paragraphs inside list item */}
+                    {item.content?.map((para: any, k: number) =>
+                      para.content?.map((textBlock: any, l: number) => {
+                        const hasMarks = textBlock.marks?.length;
+                        return hasMarks ? (
+                          <span
+                            key={l}
+                            className={getMarkClasses(textBlock.marks)}
+                          >
+                            {textBlock.text}
+                          </span>
+                        ) : (
+                          textBlock.text
+                        );
+                      })
+                    )}
                   </li>
                 ))}
               </ListTag>

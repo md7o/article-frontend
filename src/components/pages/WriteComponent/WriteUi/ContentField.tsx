@@ -33,15 +33,6 @@ import html from "highlight.js/lib/languages/xml";
 import cpp from "highlight.js/lib/languages/cpp";
 import java from "highlight.js/lib/languages/java";
 import csharp from "highlight.js/lib/languages/csharp";
-import php from "highlight.js/lib/languages/php";
-import ruby from "highlight.js/lib/languages/ruby";
-import swift from "highlight.js/lib/languages/swift";
-import rust from "highlight.js/lib/languages/rust";
-import go from "highlight.js/lib/languages/go";
-import kotlin from "highlight.js/lib/languages/kotlin";
-import scala from "highlight.js/lib/languages/scala";
-import sql from "highlight.js/lib/languages/sql";
-import shell from "highlight.js/lib/languages/shell";
 import markdown from "highlight.js/lib/languages/markdown";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -55,15 +46,6 @@ lowlight.register("html", html);
 lowlight.register("cpp", cpp);
 lowlight.register("java", java);
 lowlight.register("csharp", csharp);
-lowlight.register("php", php);
-lowlight.register("ruby", ruby);
-lowlight.register("swift", swift);
-lowlight.register("rust", rust);
-lowlight.register("go", go);
-lowlight.register("kotlin", kotlin);
-lowlight.register("scala", scala);
-lowlight.register("sql", sql);
-lowlight.register("shell", shell);
 lowlight.register("markdown", markdown);
 
 const LANGUAGES = [
@@ -72,27 +54,12 @@ const LANGUAGES = [
   { label: "TypeScript", value: "ts" },
   { label: "HTML", value: "html" },
   { label: "CSS", value: "css" },
-  { label: "PHP", value: "php" },
 
   // Systems & General Purpose
   { label: "Python", value: "python" },
   { label: "Java", value: "java" },
   { label: "C++", value: "cpp" },
   { label: "C#", value: "csharp" },
-  { label: "Go", value: "go" },
-  { label: "Rust", value: "rust" },
-
-  // Mobile Development
-  { label: "Swift", value: "swift" },
-  { label: "Kotlin", value: "kotlin" },
-
-  // Other Popular Languages
-  { label: "Ruby", value: "ruby" },
-  { label: "Scala", value: "scala" },
-  { label: "SQL", value: "sql" },
-
-  // Documentation & Scripts
-  { label: "Shell Script", value: "shell" },
   { label: "Markdown", value: "markdown" },
 ];
 
@@ -150,7 +117,7 @@ export default function TextEditor({ onChange, initialContent }: Props) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg px-2 xl:prose-2xl focus:outline-none min-h-[200px] max-w-none prose-pre:bg-gray-800 prose-pre:text-black prose-pre:p-4 prose-pre:rounded-lg prose-code:text-pink-500",
+          "prose prose-sm sm:prose lg:prose-lg px-2 xl:prose-2xl focus:outline-none min-h-[200px] max-w-none prose-pre:bg-gray-800 prose-pre:text-black prose-pre:p-4 prose-pre:rounded-lg prose-code:text-pink-500 prose-h1:text-sm prose-h2:text-xs",
       },
     },
     onUpdate: ({ editor }) => {
@@ -310,8 +277,11 @@ export default function TextEditor({ onChange, initialContent }: Props) {
       </div>
 
       {/* Editor */}
-      <div className="min-h-[500px] text-base">
-        <EditorContent editor={editor} />
+      <div className="min-h-[500px] text-base mb-20">
+        <EditorContent
+          editor={editor}
+          dir={editor.isActive({ textAlign: "right" }) ? "rtl" : "ltr"}
+        />
       </div>
     </div>
   );

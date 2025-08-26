@@ -14,7 +14,7 @@ export default function ConditionalFooter() {
     "/education-experiences",
     "/about",
     "/articles",
-    "/write",
+    // "/write",
     "/admin/login",
     "/admin/signup",
   ];

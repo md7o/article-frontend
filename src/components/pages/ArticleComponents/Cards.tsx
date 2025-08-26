@@ -67,11 +67,11 @@ const CardContent: React.FC<{
     {/* Content */}
     <div className="pb-5 px-5 space-y-1 flex flex-col gap-2 transition-all duration-300 group-hover:translate-y-[-1px]">
       <p className="text-md text-light-span  transition-colors">By Mohammed</p>
-      <h1 className="text-2xl font-semibold line-clamp-2 group-hover:text-accent transition-colors duration-300">
+      <h1 className="text-2xl font-semibold line-clamp-1 group-hover:text-accent transition-colors duration-300">
         {title}
       </h1>
       {description && (
-        <p className="text-lg text-light-span line-clamp-2 group-hover:text-gray-300 transition-colors">
+        <p className="text-lg text-light-span line-clamp-1 group-hover:text-gray-300 transition-colors">
           {description}
         </p>
       )}
