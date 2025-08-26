@@ -40,6 +40,9 @@ const getMarkClasses = (marks?: TextMark[]) =>
     .join(" ");
 
 // ======================= Main Component =======================
+// Local types for list rendering
+type ListItem = { content?: Paragraph[] };
+type Paragraph = { content?: import("@/lib/ReadInterfaces").TextBlock[] };
 export default async function ArticleDetailPage({
   params,
 }: {
@@ -216,8 +219,11 @@ export default async function ArticleDetailPage({
                 )}`}
                 dir={isRTL ? "rtl" : "ltr"}
               >
-                {block.content?.map((item: any, j: number) => (
-                  <li key={j} className={`relative ${isRTL ? "pr-2" : "pl-2"} text-white`}>
+                {(block.content as ListItem[] | undefined)?.map((item, j) => (
+                  <li
+                    key={j}
+                    className={`relative ${isRTL ? "pr-2" : "pl-2"} text-white`}
+                  >
                     <span
                       className={`absolute top-0 text-white ${
                         isRTL
@@ -225,15 +231,15 @@ export default async function ArticleDetailPage({
                             ? "-right-4"
                             : "-right-6"
                           : block.type === "bulletList"
-                          ? "-left-4"
-                          : "-left-6"
+                            ? "-left-4"
+                            : "-left-6"
                       }`}
                     >
                       {block.type === "bulletList" ? "•" : `${j + 1}.`}
                     </span>
                     {/* Render nested paragraphs inside list item */}
-                    {item.content?.map((para: any, k: number) =>
-                      para.content?.map((textBlock: any, l: number) => {
+                    {item.content?.map((para: Paragraph) =>
+                      para.content?.map((textBlock, l: number) => {
                         const hasMarks = textBlock.marks?.length;
                         return hasMarks ? (
                           <span
